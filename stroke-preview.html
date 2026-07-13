@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>木 — Stroke Order</title>
+<style>
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+    color: #eee;
+  }
+  h1 { font-size: 1.1rem; letter-spacing: 0.1em; margin-bottom: 0.5rem; color: #aaa; }
+  .reading { font-size: 0.9rem; color: #888; margin-bottom: 1.2rem; }
+  svg {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  #btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 2rem;
+    background: #c0392b;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.2s;
+  }
+  #btn:hover { background: #a93226; }
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.2rem;
+    font-size: 0.85rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .swatch { width: 20px; height: 4px; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<h1>Stroke Order — 木</h1>
+<div class="reading">ki / moku &nbsp;·&nbsp; tree, wood &nbsp;·&nbsp; 4 strokes</div>
+
+<svg id="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109" width="360" height="360">
+  <g style="fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;">
+    <path id="kvg:06728-s1" d="M19.5,39.86c2.45,0.57,5.23,0.8,8.04,0.57C40.75,39.38,63,36.5,79.78,36.15c2.8-0.06,4.54,0.1,7.34,0.5"/>
+    <path id="kvg:06728-s2" d="M51.75,10.5c1.19,1.19,2,3,2,5c0,8.65,0,55.15-0.14,74.75c-0.03,4.19-0.07,7.15-0.11,8.25"/>
+    <path id="kvg:06728-s3" d="M50.75,39.5c0,1.12-0.61,2.44-1.42,3.95C41.75,57.5,26.7,73.93,15.75,80.25"/>
+    <path id="kvg:06728-s4" d="M54.5,39c4.62,6,23,25.75,31.76,34.61c2.27,2.29,4.61,4.39,7.49,5.64"/>
+  </g>
+  <g id="numbers" style="font-size:8px;fill:#aaa;opacity:0">
+    <text transform="matrix(1 0 0 1 12.50 41.50)">1</text>
+    <text transform="matrix(1 0 0 1 42.50 11.50)">2</text>
+    <text transform="matrix(1 0 0 1 37.50 50.50)">3</text>
+    <text transform="matrix(1 0 0 1 66.50 49.50)">4</text>
+  </g>
+</svg>
+
+<div class="legend">
+  <div class="legend-item"><div class="swatch" style="background:#e74c3c"></div> 1 — horizontal</div>
+  <div class="legend-item"><div class="swatch" style="background:#e67e22"></div> 2 — vertical</div>
+  <div class="legend-item"><div class="swatch" style="background:#27ae60"></div> 3 — left sweep</div>
+  <div class="legend-item"><div class="swatch" style="background:#2980b9"></div> 4 — right sweep</div>
+</div>
+
+<button id="btn" onclick="play()">▶ Replay</button>
+
+<script>
+  const STROKE_DURATION = 500;
+  const GAP = 150;
+
+  const COLORS = {
+    's1': '#e74c3c',
+    's2': '#e67e22',
+    's3': '#27ae60',
+    's4': '#2980b9',
+  };
+
+  const strokeIds = Object.keys(COLORS).map(k => `kvg:06728-${k}`);
+
+  function initStrokes() {
+    strokeIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const key = id.replace('kvg:06728-', '');
+      el.setAttribute('stroke', COLORS[key]);
+      const len = el.getTotalLength();
+      el.style.strokeDasharray = len;
+      el.style.strokeDashoffset = len;
+      el.style.transition = 'none';
+    });
+    document.getElementById('numbers').style.opacity = '0';
+  }
+
+  function play() {
+    initStrokes();
+    document.getElementById('svg').getBoundingClientRect();
+
+    strokeIds.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      setTimeout(() => {
+        el.style.transition = `stroke-dashoffset ${STROKE_DURATION}ms ease`;
+        el.style.strokeDashoffset = '0';
+      }, i * (STROKE_DURATION + GAP));
+    });
+
+    const totalTime = strokeIds.length * (STROKE_DURATION + GAP);
+    setTimeout(() => {
+      const nums = document.getElementById('numbers');
+      nums.style.transition = 'opacity 0.4s';
+      nums.style.opacity = '1';
+    }, totalTime);
+  }
+
+  window.addEventListener('load', () => {
+    initStrokes();
+    setTimeout(play, 300);
+  });
+</script>
+</body>
+</html>

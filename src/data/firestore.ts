@@ -1,6 +1,5 @@
-import { initializeApp, cert, getApps, applicationDefault } from 'firebase-admin/app';
+import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { createRequire } from 'module';
 
 export interface KanjiDoc {
   character: string;
@@ -22,14 +21,8 @@ async function ensureInit(): Promise<void> {
   const projectId = process.env.FIRESTORE_PROJECT_ID;
   if (!projectId) throw new Error('FIRESTORE_PROJECT_ID env var is required');
 
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    const require = createRequire(import.meta.url);
-    const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-    initializeApp({ credential: cert(serviceAccount), projectId });
-  } else {
-    initializeApp({ credential: applicationDefault(), projectId });
-  }
-
+  // applicationDefault() picks up GOOGLE_APPLICATION_CREDENTIALS automatically
+  initializeApp({ credential: applicationDefault(), projectId });
   initialized = true;
 }
 
