@@ -59,3 +59,29 @@ Add to `claude_desktop_config.json`:
   }
 }
 ```
+
+## Nihongoism MCP Apps (prototype)
+
+Two interactive apps, served over the same `/mcp` endpoint, for judging whether the experience is engaging in a real host. They record nothing and call no model.
+
+| Tool | App | What the learner can do |
+|------|-----|-------------------------|
+| `show_strokes` | Stroke player | Watch a kanji brushed stroke by stroke, and play, pause, step either way, scrub and replay at their own pace. Drawn by the brush-kanji engine from KanjiVG strokes. |
+| `open_compass` | Kanji compass | See a hub kanji with a ring of up to six related kanji, each slot labeled with its relation; choose one to move the hub there. A quiz whose wrong options name the relation that caused them. |
+
+Relations (Apperceptive Pedagogy D-P9), computed from KanjiVG's component tree and the jōyō readings:
+
+- `built-on`: the neighbor contains the hub as a part at any depth.
+- `shares-part`: a shared visible top-level part, with whether the part does the same job in both. A part marked as the sound part in both kanji but read differently is labeled as a break.
+- `phonetic-series`: a shared sound part (KanjiVG's `kvg:phon`) and a shared on-reading; a reading that differs only in voicing counts (シ beside ジ).
+
+The ring ranks kanji the learner has met first (the host passes `met`; a demo learner is assumed otherwise). A new kanji that is easy to confuse with another new one this session waits ("later"), except carriers of one series (P-025). Wrong-answer options are drawn from met kanji only.
+
+```bash
+npm install
+npm run graph      # only to regenerate data/graph.json; needs the V1 data folder and service-account.json
+npm run dev        # builds ui-dist/, serves /mcp on PORT; DEV_HOST=1 also serves /dev/host
+npm test
+```
+
+`KANJIVG_DIR` points strokes at a folder of KanjiVG SVGs instead of Firestore. `DEV_HOST=1` serves `/dev/host`, a bare-bones MCP Apps host for development only.
