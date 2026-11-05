@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerStrokeOrderTool } from './tools/stroke-order.js';
+import { registerAppTools } from './tools/apps.js';
 
 export function createServer(): McpServer {
   const server = new McpServer({
@@ -8,6 +9,7 @@ export function createServer(): McpServer {
   });
 
   registerStrokeOrderTool(server);
+  registerAppTools(server);
 
   return server;
 }

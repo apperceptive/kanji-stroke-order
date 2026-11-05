@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nihongoism stroke player</title>
+<style>
+{{STYLE}}
+.sheet{background:#fffdf8;border:1px solid var(--line);border-radius:6px;aspect-ratio:1;width:100%;max-width:420px;margin:0 auto;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+.sheet canvas{display:block;width:100%;height:100%}
+.status{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);min-height:20px}
+.status b{color:var(--text);font-weight:600}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:420px;margin:0 auto;width:100%}
+.controls button{padding:9px 6px}
+.wide{max-width:420px;margin:0 auto;width:100%}
+.opts{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-width:420px;margin:0 auto;width:100%}
+.chip{font-family:var(--body);font-weight:500;font-size:12.5px;padding:5px 9px;min-height:30px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--text)}
+.chip:hover:not(:disabled){background:#f6e9e2;color:var(--text)}
+.chip.on{border-color:var(--brick);background:#f6e3de;color:var(--brick-dark)}
+.chip.next{border-style:dashed}
+.err{color:var(--brick-dark);font-size:14px;margin:0}
+</style>
+</head>
+<body>
+<main class="card" aria-label="Stroke player">
+  <header class="top">
+    <h1 class="title"><span class="jp" id="kj" style="font-size:22px"></span> <span id="gl" class="sub"></span></h1>
+    <span class="sub" id="meta"></span>
+  </header>
+  <div class="sheet"><canvas id="c" role="img" aria-label="The kanji brushed stroke by stroke"></canvas></div>
+  <div class="status" aria-live="polite"><span id="where"></span><span id="type"></span></div>
+  <div class="wide"><input type="range" id="scrub" min="0" max="1" value="0" step="1" aria-label="Strokes drawn"></div>
+  <div class="controls" role="group" aria-label="Playback">
+    <button id="replay" type="button" title="Start over and play">Replay</button>
+    <button id="back" type="button" title="Take the last stroke back">&lsaquo; Back</button>
+    <button id="play" type="button" class="solid">Play</button>
+    <button id="step" type="button" title="Brush the next stroke, then wait">Step &rsaquo;</button>
+  </div>
+  <div class="opts">
+    <label class="check">Speed
+      <select id="speed" aria-label="Speed">
+        <option value="0.35">Slow</option>
+        <option value="0.7">Gentle</option>
+        <option value="1" selected>Normal</option>
+        <option value="1.6">Quick</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="ghost" checked> Show what's next</label>
+    <label class="check"><input type="checkbox" id="grid"> Guide lines</label>
+  </div>
+  <div class="chips" id="chips" aria-label="Strokes"></div>
+  <p class="err" id="err" hidden></p>
+  <footer class="foot">
+    <div class="brand">{{LOGO}}<span>Nihongoism</span></div>
+    <p class="note">A simulation: brush shape, pressure and dry-brush texture are modeled on KanjiVG centerlines and stroke types, not traced from a calligrapher's work. Stroke data from <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>, CC BY-SA 3.0.</p>
+  </footer>
+</main>
+<script>
+{{SCRIPT}}
+</script>
+</body>
+</html>

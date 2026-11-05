@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nihongoism kanji compass</title>
+<style>
+{{STYLE}}
+.card{max-width:560px}
+.trail{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:13px;color:var(--muted)}
+.trail button{font-family:var(--kanji);font-weight:700;font-size:16px;min-height:28px;padding:2px 8px;border-width:1px;border-radius:7px}
+.trail .cur{font-family:var(--kanji);font-weight:700;font-size:16px;color:var(--text);padding:2px 8px;border-radius:7px;background:#f6e3de}
+.trail .arrow{opacity:.5}
+
+.stage{position:relative;width:100%;aspect-ratio:1;container-type:inline-size;margin:0 auto;background:radial-gradient(circle at 50% 50%,#fff 0,#fffaf3 55%,#f6ebe3 100%);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lines line{stroke-width:.7;stroke-linecap:round;opacity:.55;transition:opacity .2s,stroke-width .2s}
+.lines line.sound{stroke:var(--sound)}
+.lines line.part{stroke:var(--part);stroke-dasharray:2 1.6}
+.lines line.built{stroke:var(--built);stroke-dasharray:.5 1.4}
+.lines line.hot{opacity:1;stroke-width:1.2}
+.lines circle.ring{fill:none;stroke:var(--line);stroke-width:.35;stroke-dasharray:1 1.4}
+
+.hub{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);background:#fffdf8;border:2px solid var(--brick);border-radius:12%;box-shadow:0 0 0 5px rgba(152,52,44,.08),0 6px 18px rgba(68,17,17,.18);cursor:pointer;display:grid;place-items:center;overflow:hidden;padding:0;min-height:0}
+.hub:hover:not(:disabled){background:#fffdf8;color:inherit}
+.hub canvas{width:100%;height:100%;display:block}
+.hub .q[hidden]{display:none}
+.hub .q{position:absolute;inset:0;display:grid;place-items:center;padding:8%;text-align:center;font-family:var(--heading);font-weight:700;font-size:clamp(14px,4.2cqw,24px);color:var(--text);line-height:1.2}
+.hub.pop{animation:hubin .45s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes hubin{from{transform:translate(-50%,-50%) scale(.8);opacity:.3}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+.tile{position:absolute;left:var(--x);top:var(--y);width:23%;transform:translate(-50%,-50%);display:grid;justify-items:center;gap:1px;padding:5px 3px 6px;min-height:0;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--text);border-radius:12px;font-family:var(--body);font-weight:500;box-shadow:0 2px 8px rgba(68,17,17,.1);transition:left .32s cubic-bezier(.3,.7,.2,1),top .32s cubic-bezier(.3,.7,.2,1),transform .15s,opacity .2s,box-shadow .2s;animation:tilein .38s both cubic-bezier(.2,.9,.3,1.2);animation-delay:calc(var(--i,0)*45ms)}
+@keyframes tilein{from{opacity:0;transform:translate(-50%,-50%) scale(.6)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.tile:hover:not(:disabled),.tile:focus-visible{background:#fff;color:var(--text);transform:translate(-50%,-50%) scale(1.07);box-shadow:0 5px 16px rgba(68,17,17,.22);z-index:3}
+.tile .g{font-family:var(--kanji);font-weight:700;font-size:clamp(24px,8.4cqw,48px);line-height:1.1}
+.tile .gl{font-size:clamp(9.5px,2.3cqw,12.5px);color:var(--muted);line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .pill{font-size:clamp(9px,2.1cqw,11.5px);line-height:1.2;font-weight:600;padding:1px 6px;border-radius:999px;color:var(--rc);background:color-mix(in srgb,var(--rc) 11%,#fff);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .badge{position:absolute;top:-7px;right:-4px;font-size:clamp(8.5px,1.9cqw,10.5px);font-weight:700;padding:1px 6px;border-radius:999px;background:var(--brick);color:#fff}
+.tile.met .badge{background:var(--built)}
+.tile.sound{--rc:var(--sound)} .tile.part{--rc:var(--part)} .tile.built{--rc:var(--built)} .tile.neutral{--rc:var(--neutral)}
+.tile.locked{border-style:dashed;opacity:.5;cursor:default;box-shadow:none}
+.tile.locked .badge{background:var(--muted)}
+.tile.locked:hover{transform:translate(-50%,-50%)}
+.tile.focus{animation:pulse 1s 3}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(152,52,44,.5)}50%{box-shadow:0 0 0 10px rgba(152,52,44,0)}}
+.tile.right{border-color:var(--built);box-shadow:0 0 0 3px rgba(74,124,89,.28)}
+.tile.wrong{border-color:var(--brick);box-shadow:0 0 0 3px rgba(152,52,44,.25)}
+.tile.opt .g.rd{font-size:clamp(18px,6cqw,34px)}
+.tile.flying{z-index:4}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fchip{font-family:var(--body);font-weight:600;font-size:12.5px;min-height:32px;padding:5px 11px;border-radius:999px;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--rc,var(--text))}
+.fchip:hover:not(:disabled){background:color-mix(in srgb,var(--rc,var(--brick)) 12%,#fff);color:var(--rc,var(--text))}
+.fchip.on{background:var(--rc,var(--brick));color:#fff}
+.fchip.on:hover:not(:disabled){background:var(--rc,var(--brick));color:#fff}
+.fchip:disabled{opacity:.4}
+.fchip b{font-weight:700}
+.fchip.sound{--rc:var(--sound)} .fchip.part{--rc:var(--part)} .fchip.built{--rc:var(--built)}
+.pager{display:flex;gap:4px;align-items:center;margin-left:auto;font-size:12.5px;color:var(--muted)}
+.pager button{min-height:32px;padding:4px 10px;font-size:16px}
+
+.hubinfo{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.hubinfo .big{font-family:var(--kanji);font-size:26px;font-weight:700;line-height:1}
+.hubinfo .m{font-weight:600}
+.parts{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.part-chip{font-family:var(--body);font-weight:500;font-size:13px;min-height:30px;padding:3px 10px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--text)}
+.part-chip .jp{font-weight:700;font-size:16px}
+.part-chip small{color:var(--muted);font-size:11px;margin-left:3px}
+.part-chip:hover:not(:disabled){background:#f6e9e2;color:var(--text)}
+.part-chip.focus{animation:pulse 1s 3;border-color:var(--brick)}
+.status{min-height:44px;font-size:13.5px;line-height:1.45;padding:7px 10px;border-radius:9px;background:#f8efe8;color:var(--text)}
+.status:empty{display:none}
+.status .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:0 7px;border-radius:999px;color:#fff;background:var(--rc,var(--muted));margin-right:5px;vertical-align:1px}
+.status.sound{--rc:var(--sound)} .status.part{--rc:var(--part)} .status.built{--rc:var(--built)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.actions button{font-size:14px;min-height:38px;padding:7px 12px}
+.actions .grow{margin-left:auto}
+.verdict{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;display:grid;gap:6px}
+.verdict.ok{border-color:var(--built);background:#f1f7f2}
+.verdict.no{border-color:var(--brick);background:#fbefec}
+.verdict h2{font-family:var(--heading);font-size:17px;margin:0}
+.verdict p{margin:0;font-size:14px}
+.cause{display:inline-block;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;color:#fff;background:var(--rc,var(--muted))}
+.cause.sound{--rc:var(--sound)} .cause.part{--rc:var(--part)} .cause.built{--rc:var(--built)}
+.err{color:var(--brick-dark);font-size:14px;margin:0}
+</style>
+</head>
+<body>
+<main class="card" aria-label="Kanji compass">
+  <header class="top">
+    <h1 class="title">Kanji compass</h1>
+    <span class="sub" id="demo"></span>
+  </header>
+  <nav class="trail" id="trail" aria-label="Where you have been"></nav>
+  <div class="stage" id="stage">
+    <svg class="lines" id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <button class="hub" id="hub" type="button" title="Brush it again" aria-label="Brush the center kanji again"><canvas id="c"></canvas><span class="q" id="hubq" hidden></span></button>
+  </div>
+  <div class="legend" id="legend" role="group" aria-label="Show neighbors by relation"></div>
+  <div class="status" id="status" aria-live="polite"></div>
+  <section id="verdict" hidden></section>
+  <div class="hubinfo" id="hubinfo"></div>
+  <div class="parts" id="parts"></div>
+  <div class="actions" id="actions"></div>
+  <p class="err" id="err" hidden></p>
+  <footer class="foot">
+    <div class="brand">{{LOGO}}<span>Nihongoism</span></div>
+    <p class="note">Relations are computed from <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>'s component tree (CC BY-SA 3.0) and the jōyō readings. The demo learner and "I know this" are held in this window only; nothing is recorded.</p>
+  </footer>
+</main>
+<script>
+{{SCRIPT}}
+</script>
+</body>
+</html>
