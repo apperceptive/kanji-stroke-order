@@ -82,30 +82,70 @@
 .verdict p{margin:0;font-size:14px}
 .cause{display:inline-block;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;color:#fff;background:var(--rc,var(--muted))}
 .cause.sound{--rc:var(--sound)} .cause.part{--rc:var(--part)} .cause.built{--rc:var(--built)}
+
+/* Layouts: a compact card (the inline default, per Claude's design guidelines) and the full compass. */
+body[data-layout=card] .full-only{display:none!important}
+body[data-layout=full] .card-only{display:none!important}
+body[data-layout=card] .card{max-width:520px;padding:12px 14px 10px;gap:8px}
+.cardtop{display:flex;gap:12px;align-items:center}
+.cardhub{flex:none;width:92px;height:92px;position:relative}
+body[data-layout=card] .hub{position:relative;left:auto;top:auto;transform:none;width:92px;height:92px;box-shadow:0 0 0 3px rgba(152,52,44,.08),0 3px 10px rgba(68,17,17,.16);container-type:inline-size}
+body[data-layout=card] .hub.pop{animation:none}
+body[data-layout=card] .hub .q{font-size:60cqw}
+.cardinfo{display:grid;gap:2px;min-width:0}
+.cardtitle{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.cardtitle .big{font-size:26px;font-weight:700;line-height:1}
+.cardtitle .m{font-weight:600}
+.carousel{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -2px;scrollbar-width:thin}
+.ccard{flex:none;scroll-snap-align:start;position:relative;width:92px;display:grid;justify-items:center;gap:1px;padding:6px 3px 7px;min-height:0;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--text);border-radius:12px;font-family:var(--body);font-weight:500;box-shadow:0 2px 6px rgba(68,17,17,.1)}
+.ccard:hover:not(:disabled){background:#fff;color:var(--text);box-shadow:0 4px 12px rgba(68,17,17,.2)}
+.ccard .g{font-family:var(--kanji);font-weight:700;font-size:30px;line-height:1.1}
+.ccard .gl{font-size:11px;color:var(--muted);line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccard .pill{font-size:10.5px;line-height:1.2;font-weight:600;padding:1px 6px;border-radius:999px;color:var(--rc);background:color-mix(in srgb,var(--rc) 11%,#fff);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccard .badge{position:absolute;top:-6px;right:-3px;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:var(--brick);color:#fff}
+.ccard.met .badge{background:var(--built)}
+.ccard.sound{--rc:var(--sound)} .ccard.part{--rc:var(--part)} .ccard.built{--rc:var(--built)}
+.ccard.locked{border-style:dashed;opacity:.5;box-shadow:none;cursor:default}
+.ccard.locked .badge{background:var(--muted)}
+.status.small{min-height:0;font-size:12.5px;padding:5px 9px}
 .err{color:var(--brick-dark);font-size:14px;margin:0}
 </style>
 </head>
-<body>
+<body data-layout="card">
 <main class="card" aria-label="Kanji compass">
-  <header class="top">
+  <header class="top full-only">
     <h1 class="title">Kanji compass</h1>
     <span class="sub" id="demo"></span>
   </header>
-  <nav class="trail" id="trail" aria-label="Where you have been"></nav>
-  <div class="stage" id="stage">
+  <nav class="trail full-only" id="trail" aria-label="Where you have been"></nav>
+  <div class="stage full-only" id="stage">
     <svg class="lines" id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
     <button class="hub" id="hub" type="button" title="Brush it again" aria-label="Brush the center kanji again"><canvas id="c"></canvas><span class="q" id="hubq" hidden></span></button>
   </div>
-  <div class="legend" id="legend" role="group" aria-label="Show neighbors by relation"></div>
-  <div class="status" id="status" aria-live="polite"></div>
-  <section id="verdict" hidden></section>
-  <div class="hubinfo" id="hubinfo"></div>
-  <div class="parts" id="parts"></div>
-  <div class="actions" id="actions"></div>
+  <div class="legend full-only" id="legend" role="group" aria-label="Show neighbors by relation"></div>
+  <div class="status full-only" id="status" aria-live="polite"></div>
+  <section class="card-only" id="card" aria-label="Kanji compass, compact">
+    <div class="cardtop">
+      <div id="cardHub" class="cardhub"></div>
+      <div class="cardinfo">
+        <div class="cardtitle"><span class="jp big" id="cKanji"></span><span class="m" id="cGloss"></span></div>
+        <div class="sub" id="cMeta"></div>
+        <div class="sub" id="cParts"></div>
+      </div>
+    </div>
+    <div class="carousel" id="carousel" role="list" aria-label="Related kanji"></div>
+    <div class="status small" id="cStatus" aria-live="polite"></div>
+    <div class="actions" id="cActions"></div>
+  </section>
+  <section id="verdict" class="full-only" hidden></section>
+  <div class="hubinfo full-only" id="hubinfo"></div>
+  <div class="parts full-only" id="parts"></div>
+  <div class="actions full-only" id="actions"></div>
   <p class="err" id="err" hidden></p>
   <footer class="foot">
     <div class="brand">{{LOGO}}<span>Nihongoism</span></div>
-    <p class="note">Relations are computed from <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>'s component tree (CC BY-SA 3.0) and the jōyō readings. The demo learner and "I know this" are held in this window only; nothing is recorded.</p>
+    <p class="note card-only">Structure and strokes: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>, CC BY-SA 3.0.</p>
+    <p class="note full-only">Relations are computed from <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>'s component tree (CC BY-SA 3.0) and the jōyō readings. The demo learner and "I know this" are held in this window only; nothing is recorded.</p>
   </footer>
 </main>
 <script>

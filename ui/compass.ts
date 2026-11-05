@@ -115,6 +115,45 @@ function tellModel(text: string): void {
   app.updateModelContext({ content: [{ type: 'text', text }] }).catch(() => {});
 }
 
+// --- layouts: a compact card inline, the full compass when expanded ----------------------------------
+// Claude's design guidelines keep inline cards small (auto height, at most two actions) and give complex
+// interaction a fullscreen view. Hosts without a fullscreen mode get the full compass inline when expanded.
+
+let localFull = false;
+let shownLayout: 'card' | 'full' | null = null;
+const hostFullscreen = () => app.getHostContext()?.displayMode === 'fullscreen';
+const canFullscreen = () => !!app.getHostContext()?.availableDisplayModes?.includes('fullscreen');
+const isFull = () => hostFullscreen() || localFull;
+
+/** Put the page in the right layout and the hub canvas in the right slot. Returns whether it changed. */
+function applyLayout(): boolean {
+  const layout = isFull() ? 'full' : 'card';
+  document.body.dataset.layout = layout;
+  const slot = layout === 'full' ? $('stage') : $('cardHub');
+  if ($('hub').parentElement !== slot) slot.append($('hub'));
+  const changed = layout !== shownLayout;
+  shownLayout = layout;
+  return changed;
+}
+
+async function expand(): Promise<void> {
+  if (canFullscreen()) {
+    try {
+      await app.requestDisplayMode({ mode: 'fullscreen' });
+    } catch {
+      localFull = true;
+    }
+  } else localFull = true;
+  render(false);
+}
+
+async function collapse(): Promise<void> {
+  localFull = false;
+  quiz = null;
+  if (hostFullscreen()) await app.requestDisplayMode({ mode: 'inline' }).catch(() => {});
+  render(false);
+}
+
 // --- moving ----------------------------------------------------------------------------------
 
 async function load(hub: string, opts: { filter?: Filter; page?: number; focus?: string; arrive?: boolean } = {}): Promise<void> {
@@ -182,7 +221,7 @@ function line(x: number, y: number, c: string): SVGLineElement {
 
 function setStatus(html: Node | string, rc = ''): void {
   const s = $('status');
-  s.className = `status ${rc}`;
+  s.className = `status full-only ${rc}`;
   s.replaceChildren(...(typeof html === 'string' ? [document.createTextNode(html)] : [html]));
 }
 
@@ -281,8 +320,6 @@ function renderHubInfo(): void {
 function renderActions(): void {
   const hb = payload.hub;
   const b = (label: string, onclick: () => void, extra: Record<string, unknown> = {}) => h('button', { type: 'button', onclick, ...extra }, label);
-  const canExpand = app.getHostContext()?.availableDisplayModes?.includes('fullscreen');
-  const full = app.getHostContext()?.displayMode === 'fullscreen';
   fill($('actions'), 
     b('Replay strokes', () => player.replay()),
     b(met.has(hb.c) ? '✓ I know this' : 'I know this', async () => {
@@ -298,7 +335,7 @@ function renderActions(): void {
     b('Ask Claude', () => {
       app.sendMessage({ role: 'user', content: [{ type: 'text', text: `Tell me about ${hb.c} (${hb.gloss}): what its parts and the kanji around it on the compass teach.` }] }).catch(() => setStatus('This host does not let the compass send a message to the chat.'));
     }, { class: 'grow' }),
-    canExpand ? b(full ? 'Collapse' : 'Expand', () => app.requestDisplayMode({ mode: full ? 'inline' : 'fullscreen' }).then(renderActions).catch(() => {})) : null,
+    b('Back to card', () => collapse().catch(showError)),
   );
 }
 
@@ -332,7 +369,71 @@ function renderHubFace(): void {
   }
 }
 
+function renderCard(arrive: boolean): void {
+  const hb = payload.hub;
+  const hub = $('hub');
+  if (arrive) {
+    hub.classList.remove('pop');
+  }
+  $('hubq').hidden = !!hb.strokes.length;
+  $('hubq').textContent = hb.c;
+  $('c').style.visibility = 'visible';
+  $('cKanji').textContent = hb.c;
+  $('cGloss').textContent = hb.gloss;
+  $('cMeta').textContent = [hb.on.join('・'), hb.grade ? `grade ${hb.grade}` : '', `${hb.strokeCount} strokes`, payload.demo ? 'demo learner' : ''].filter(Boolean).join(' · ');
+  $('cParts').textContent = hb.parts.length ? `Made of ${hb.parts.map((p) => p.shown + (ROLE_NAME[p.role] ? ` (${ROLE_NAME[p.role]})` : '')).join(' + ')}` : `A part of other kanji; no parts of its own.`;
+  const items = payload.ring.items;
+  const cards = items.map((it) => {
+    const rc = REL_CLASS[it.relation];
+    const c = h(
+      'button',
+      {
+        class: `ccard ${rc} ${it.met ? 'met' : ''} ${it.locked ? 'locked' : ''}`,
+        type: 'button',
+        role: 'listitem',
+        'aria-label': `${it.k}, ${it.gloss}. ${it.label}.${it.met ? '' : ' New.'}${it.locked ? ' Waits for another day.' : ''}`,
+      },
+      h('span', { class: 'g' }, it.k),
+      h('span', { class: 'gl' }, it.gloss),
+      h('span', { class: 'pill' }, it.label),
+      h('span', { class: 'badge' }, it.locked ? 'later' : it.met ? '✓' : 'new'),
+    );
+    c.addEventListener('click', () => (it.locked ? explainCard(it) : moveTo(it.k)));
+    for (const ev of ['mouseenter', 'focus'] as const) c.addEventListener(ev, () => explainCard(it));
+    return c;
+  });
+  const total = payload.ring.counts['phonetic-series'] + payload.ring.counts['shares-part'] + payload.ring.counts['built-on'];
+  if (payload.ring.pages > 1) {
+    const next = (payload.ring.page + 1) % payload.ring.pages;
+    cards.push(h('button', { class: 'ccard', type: 'button', style: 'align-content:center;min-height:90px', onclick: () => load(hb.c, { filter: payload.ring.relation, page: next }).catch(showError) }, h('span', { class: 'g' }, '›'), h('span', { class: 'gl' }, `${items.length} of ${total}`), h('span', { class: 'pill', style: '--rc:var(--muted)' }, 'more')));
+  }
+  fill($('carousel'), ...cards);
+  $('carousel').scrollLeft = 0;
+  setCardStatus(total ? `${items.length} of ${total} related kanji. Kanji you know come first; tap one to make it the center.` : `${hb.c} has no related kanji in this set.`);
+  fill($('cActions'),
+    h('button', { type: 'button', class: 'solid', onclick: () => expand().catch(showError) }, 'Expand'),
+    h('button', { type: 'button', onclick: () => expand().then(() => startQuiz('form')).catch(showError) }, 'Quiz me'),
+  );
+}
+
+function setCardStatus(t: string | Node): void {
+  $('cStatus').replaceChildren(typeof t === 'string' ? document.createTextNode(t) : t);
+}
+
+function explainCard(it: RingItem): void {
+  const frag = document.createDocumentFragment();
+  frag.append(h('b', {}, `${it.k} `), `${it.gloss}. ${it.note ? it.note.charAt(0).toUpperCase() + it.note.slice(1) + '. ' : ''}`);
+  if (it.locked) frag.append(`Waits for another day: easy to confuse with ${it.lockedBy}, which is new this session.`);
+  else if (!it.met) frag.append('New to you.');
+  setCardStatus(frag);
+}
+
 function render(arrive: boolean): void {
+  applyLayout();
+  if (!isFull()) {
+    renderCard(arrive);
+    return;
+  }
   $('demo').textContent = payload.demo ? `Demo learner · ${met.size} kanji known` : `${met.size} kanji known`;
   if (arrive) {
     const hub = $('hub');
@@ -505,7 +606,10 @@ app.ontoolresult = (result) => {
   render(true);
 };
 app.onhostcontextchanged = () => {
-  if (payload && !quiz) renderActions();
+  if (payload && (isFull() ? 'full' : 'card') !== shownLayout) {
+    if (!isFull()) quiz = null;
+    render(false);
+  }
 };
 
 app.connect().catch((e) => showError(`Could not reach the host: ${e?.message ?? e}`));
