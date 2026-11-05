@@ -357,14 +357,15 @@ function renderHubFace(): void {
   const q = $('hubq');
   const canvas = $('c');
   if (quiz?.q.kind === 'form' && !quiz.verdict) {
+    // The meaning stands in for the kanji so the question does not give the answer away.
     q.hidden = false;
     q.textContent = `“${hb.gloss}”`;
+    q.classList.remove('glyph');
     canvas.style.visibility = 'hidden';
   } else {
     q.hidden = !!hb.strokes.length;
     q.textContent = hb.c;
-    q.style.fontFamily = 'var(--kanji)';
-    q.style.fontSize = '40cqw';
+    q.classList.add('glyph');
     canvas.style.visibility = 'visible';
   }
 }
@@ -377,6 +378,7 @@ function renderCard(arrive: boolean): void {
   }
   $('hubq').hidden = !!hb.strokes.length;
   $('hubq').textContent = hb.c;
+  $('hubq').classList.add('glyph');
   $('c').style.visibility = 'visible';
   $('cKanji').textContent = hb.c;
   $('cGloss').textContent = hb.gloss;
