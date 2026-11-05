@@ -97,7 +97,8 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
 .cardtitle{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 .cardtitle .big{font-size:26px;font-weight:700;line-height:1}
 .cardtitle .m{font-weight:600}
-.carousel{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -2px;scrollbar-width:thin}
+.card>*{min-width:0}
+.carousel{max-width:100%;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -2px;scrollbar-width:thin}
 .ccard{flex:none;scroll-snap-align:start;position:relative;width:92px;display:grid;justify-items:center;gap:1px;padding:6px 3px 7px;min-height:0;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--text);border-radius:12px;font-family:var(--body);font-weight:500;box-shadow:0 2px 6px rgba(68,17,17,.1)}
 .ccard:hover:not(:disabled){background:#fff;color:var(--text);box-shadow:0 4px 12px rgba(68,17,17,.2)}
 .ccard .g{font-family:var(--kanji);font-weight:700;font-size:30px;line-height:1.1}
