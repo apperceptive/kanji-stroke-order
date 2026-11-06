@@ -78,6 +78,9 @@ export class BrushPlayer {
     this.running = false;
     this.doneCount = 0;
     this.ghostFor = -1;
+    // resize() does nothing when the canvas keeps its size, so the previous kanji's finished strokes and its
+    // preview would stay on their layers and the new kanji would be brushed on top of them.
+    for (const c of [this.done, this.ghostCanvas]) c.getContext('2d')!.clearRect(0, 0, c.width, c.height);
     this.resize();
     this.render();
     this.notify();
