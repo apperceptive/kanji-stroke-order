@@ -6,6 +6,8 @@ interface StrokeResult {
   character: string;
   gloss: string;
   on: string[];
+  kun: string[];
+  reading: string;
   strokes: Stroke[];
 }
 
@@ -53,7 +55,7 @@ function show(r: StrokeResult): void {
   strokes = r.strokes;
   $('kj').textContent = r.character;
   $('gl').textContent = r.gloss;
-  $('meta').textContent = [r.on.join('・'), `${r.strokes.length} strokes`].filter(Boolean).join(' · ');
+  $('meta').textContent = [r.reading, `${r.strokes.length} strokes`].filter(Boolean).join(' · ');
   const chips = $('chips');
   chips.replaceChildren(
     ...r.strokes.map((s, i) => {

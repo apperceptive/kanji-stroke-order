@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
-import { getNode, gloss } from '../graph/graph.js';
+import { getNode, gloss, readings } from '../graph/graph.js';
 import { buildRing, centerParts, RELATIONS, type CompassState, type Ring } from '../graph/relations.js';
 import { buildQuestion, judge, publicQuestion } from '../graph/questions.js';
 import { getStrokes, type Stroke } from '../data/strokes.js';
@@ -41,6 +41,9 @@ export interface HubPayload {
     gloss: string;
     meanings: string[];
     on: string[];
+    kun: string[];
+    /** On and kun readings as one labeled line, e.g. "on ビョウ · kun ねこ". */
+    reading: string;
     grade: number | null;
     strokeCount: number;
     parts: ReturnType<typeof centerParts>;
@@ -77,6 +80,8 @@ export async function hubPayload(hubChar: string, state: CompassState, relation:
       gloss: gloss(n),
       meanings: n.m,
       on: n.on,
+      kun: n.kun,
+      reading: readings(n),
       grade: n.g,
       strokeCount: n.sc,
       parts: centerParts(n),
@@ -122,8 +127,8 @@ export function registerAppTools(server: McpServer): void {
       if (!strokes) return text(`No stroke data for "${character}".`, true);
       const n = getNode(character);
       return {
-        content: [{ type: 'text', text: `Stroke player shown for ${character}${n ? ` (${gloss(n)}; ${n.on.join('・')})` : ''}, ${strokes.length} strokes. The learner controls the pace.` }],
-        structuredContent: { character, gloss: n ? gloss(n) : '', on: n?.on ?? [], strokes },
+        content: [{ type: 'text', text: `Stroke player shown for ${character}${n ? ` (${gloss(n)}; ${readings(n)})` : ''}, ${strokes.length} strokes. The learner controls the pace.` }],
+        structuredContent: { character, gloss: n ? gloss(n) : '', on: n?.on ?? [], kun: n?.kun ?? [], reading: n ? readings(n) : '', strokes },
       };
     },
   );
@@ -154,7 +159,7 @@ export function registerAppTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Compass opened on ${p.hub.c} (${p.hub.gloss}; ${p.hub.on.join('・')}). Parts: ${p.hub.parts.map((x) => `${x.shown} (${x.role})`).join(', ') || 'none'}.\nRing (${p.ring.items.length} of ${total} neighbors; phonetic-series ${c['phonetic-series']}, shares-part ${c['shares-part']}, built-on ${c['built-on']}):\n${lines.join('\n')}${demo ? '\nNo learner state was passed, so a demo learner who knows 15 kanji is assumed.' : ''}`,
+              text: `Compass opened on ${p.hub.c} (${p.hub.gloss}; ${p.hub.reading}). Parts: ${p.hub.parts.map((x) => `${x.shown} (${x.role})`).join(', ') || 'none'}.\nRing (${p.ring.items.length} of ${total} neighbors; phonetic-series ${c['phonetic-series']}, shares-part ${c['shares-part']}, built-on ${c['built-on']}):\n${lines.join('\n')}${demo ? '\nNo learner state was passed, so a demo learner who knows 15 kanji is assumed.' : ''}`,
             },
           ],
           structuredContent: p as unknown as Record<string, unknown>,

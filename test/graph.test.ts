@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getNode, SEED } from '../src/graph/graph.js';
+import { getNode, readings, SEED } from '../src/graph/graph.js';
 import { buildRing, builtOn, confusable, devoice, phoneticSeries, sharesPart, RING_CAP } from '../src/graph/relations.js';
 import { buildQuestion, judge, publicQuestion } from '../src/graph/questions.js';
 
@@ -130,4 +130,15 @@ test('form questions leave out distractors that share a gloss with the answer', 
   for (const o of q.options.filter((x) => !x.correct)) {
     for (const w of words('時')) if (w.length > 2) assert.ok(!words(o.text).has(w), `${o.text} shares "${w}"`);
   }
+});
+
+test('kun readings travel with the on-readings, labeled, and uncommon ones stay out', () => {
+  assert.deepEqual(hub('猫').kun, ['ねこ']);
+  assert.equal(readings(hub('猫')), 'on ビョウ · kun ねこ');
+  assert.equal(readings(hub('時')), 'on ジ · kun とき');
+  // dictionary style: a dot before the okurigana, and a long list is cut for the line
+  assert.equal(hub('分').kun[0], 'わ.ける');
+  assert.equal(readings(hub('分'), 2), 'on ブン・フン・ブ · kun わ.ける・わ.かれる');
+  // a kanji with no kun reading just has the on line
+  assert.ok(!readings(hub('寺')).includes('kun') || hub('寺').kun.length > 0);
 });

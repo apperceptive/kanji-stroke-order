@@ -26,6 +26,8 @@ interface Payload {
     gloss: string;
     meanings: string[];
     on: string[];
+    kun: string[];
+    reading: string;
     grade: number | null;
     strokeCount: number;
     parts: { e: string; shown: string; role: 'sound' | 'radical' | 'part'; navigable: boolean }[];
@@ -299,7 +301,7 @@ function renderHubInfo(): void {
   fill($('hubinfo'), 
     h('span', { class: 'big jp' }, hb.c),
     h('span', { class: 'm' }, hb.gloss),
-    h('span', { class: 'sub' }, [hb.on.join('・'), hb.grade ? `grade ${hb.grade}` : '', `${hb.strokeCount} strokes`].filter(Boolean).join(' · ')),
+    h('span', { class: 'sub' }, [hb.reading, hb.grade ? `grade ${hb.grade}` : '', `${hb.strokeCount} strokes`].filter(Boolean).join(' · ')),
   );
   const parts = hb.parts;
   fill($('parts'), 
@@ -386,7 +388,7 @@ function renderCard(arrive: boolean): void {
   $('c').style.visibility = 'visible';
   $('cKanji').textContent = hb.c;
   $('cGloss').textContent = hb.gloss;
-  $('cMeta').textContent = [hb.on.join('・'), hb.grade ? `grade ${hb.grade}` : '', `${hb.strokeCount} strokes`, payload.demo ? 'demo learner' : ''].filter(Boolean).join(' · ');
+  $('cMeta').textContent = [hb.reading, hb.grade ? `grade ${hb.grade}` : '', `${hb.strokeCount} strokes`, payload.demo ? 'demo learner' : ''].filter(Boolean).join(' · ');
   $('cParts').textContent = hb.parts.length ? `Made of ${hb.parts.map((p) => p.shown + (ROLE_NAME[p.role] ? ` (${ROLE_NAME[p.role]})` : '')).join(' + ')}` : `A part of other kanji; no parts of its own.`;
   const items = payload.ring.items;
   const cards = items.map((it) => {

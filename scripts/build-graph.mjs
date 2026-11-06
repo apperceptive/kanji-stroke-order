@@ -98,10 +98,16 @@ function deepElements(node, set = new Set(), top = true) {
 
 const readingsRows = fs.readFileSync(READINGS_TSV, 'utf8').split(/\r?\n/).slice(1).filter(Boolean).map((l) => l.split('\t'));
 const on = new Map();
+// Kun readings keep KANJIDIC's dot between the stem and the okurigana (わ.ける); the uncommon ones are left out.
+const kun = new Map();
 for (const [k, reading, , type, uncommon] of readingsRows) {
-  if (type !== 'On') continue;
-  if (!on.has(k)) on.set(k, []);
-  on.get(k).push({ r: reading, u: uncommon === 'Y' ? 1 : 0 });
+  if (type === 'On') {
+    if (!on.has(k)) on.set(k, []);
+    on.get(k).push({ r: reading, u: uncommon === 'Y' ? 1 : 0 });
+  } else if (type === 'Kun' && uncommon !== 'Y') {
+    if (!kun.has(k)) kun.set(k, []);
+    kun.get(k).push(reading);
+  }
 }
 const joyo = [...new Set(readingsRows.map((r) => r[0]))];
 console.log(`jōyō set: ${joyo.length} kanji, ${on.size} with an on-reading`);
@@ -151,6 +157,7 @@ for (const k of joyo) {
     sc: m?.stroke_count ?? countStrokes(tree),
     m: m?.meaning?.english?.slice(0, 3) ?? [],
     on: (on.get(k) ?? []).map((x) => x.r),
+    kun: kun.get(k) ?? [],
     parts: parts.map(({ e, shown, pos, rad, ph, n }) => {
       const o = { e, n };
       if (shown !== e) o.s = shown;

@@ -27,6 +27,8 @@ export interface KanjiNode {
   m: string[];
   /** On-readings, katakana. */
   on: string[];
+  /** Common kun readings, hiragana, with a dot before the okurigana (わ.ける). */
+  kun: string[];
   parts: Part[];
   /** Every element at any depth under the kanji. */
   deep: string[];
@@ -57,6 +59,14 @@ export function loadGraph(): GraphBundle {
 
 export function getNode(k: string): KanjiNode | undefined {
   return loadGraph().kanji[k];
+}
+
+/** The readings line: on and kun, labeled, as the apps show it. */
+export function readings(n: KanjiNode, kunLimit = 4): string {
+  const parts: string[] = [];
+  if (n.on.length) parts.push(`on ${n.on.join('・')}`);
+  if (n.kun.length) parts.push(`kun ${n.kun.slice(0, kunLimit).join('・')}`);
+  return parts.join(' · ');
 }
 
 export function gloss(n: KanjiNode): string {
