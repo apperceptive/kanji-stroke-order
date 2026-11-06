@@ -46,7 +46,8 @@
 .tile.right{border-color:var(--built);box-shadow:0 0 0 3px rgba(74,124,89,.28)}
 .tile.wrong{border-color:var(--brick);box-shadow:0 0 0 3px rgba(152,52,44,.25)}
 .tile.opt .g.rd{font-size:clamp(18px,6cqw,34px)}
-.tile.flying{z-index:4}
+/* The chosen tile glides into the hub and fades, so it never sits on top of the kanji in the middle. */
+.tile.flying,.tile.flying:hover:not(:disabled){z-index:1;opacity:0!important;transform:translate(-50%,-50%) scale(.35)!important;transition:left .3s cubic-bezier(.3,.7,.2,1),top .3s cubic-bezier(.3,.7,.2,1),transform .3s,opacity .25s .05s;box-shadow:none;animation:none}
 
 .legend{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fchip{font-family:var(--body);font-weight:600;font-size:12.5px;min-height:32px;padding:5px 11px;border-radius:999px;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--rc,var(--text))}

@@ -156,8 +156,10 @@ async function collapse(): Promise<void> {
 
 // --- moving ----------------------------------------------------------------------------------
 
-async function load(hub: string, opts: { filter?: Filter; page?: number; focus?: string; arrive?: boolean } = {}): Promise<void> {
+/** `after` holds the redraw back, so a tile can finish gliding into the hub before the new ring replaces it. */
+async function load(hub: string, opts: { filter?: Filter; page?: number; focus?: string; arrive?: boolean; after?: Promise<unknown> } = {}): Promise<void> {
   const p = await call<Payload>('compass_move', { hub, ...stateArgs(), relation: opts.filter ?? 'all', page: opts.page ?? 0, focus: opts.focus });
+  if (opts.after) await opts.after;
   const hubChanged = !payload || payload.hub.c !== p.hub.c;
   payload = p;
   focusK = opts.focus ?? null;
@@ -182,7 +184,7 @@ async function moveTo(k: string, tile?: HTMLElement): Promise<void> {
     }
     if (!met.has(k)) introduced.add(k);
     const from = payload?.hub.c;
-    await Promise.all([load(k, { arrive: true }), sleep(tile ? 300 : 0)]);
+    await load(k, { arrive: true, after: tile ? sleep(320) : undefined });
     // Going back to a kanji already on the trail cuts the trail there; anything else extends it.
     trail = trail.includes(k) ? trail.slice(0, trail.indexOf(k) + 1) : [...trail, k];
     renderTrail();
