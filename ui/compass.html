@@ -7,6 +7,13 @@
 <style>
 {{STYLE}}
 .card{max-width:560px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.side{display:grid;gap:10px;align-content:start;min-width:0}
+/* Wide (fullscreen): the ring on the left, everything else beside it, so it all fits without scrolling. */
+@media (min-width:760px){
+  body[data-layout=full] .card{max-width:1120px}
+  body[data-layout=full] .layout{grid-template-columns:clamp(320px,calc(100vh - 195px - var(--sa-top,0px) - var(--sa-bottom,0px)),600px) minmax(0,1fr);gap:18px;align-items:start}
+}
 .trail{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:13px;color:var(--muted)}
 .trail button{font-family:var(--kanji);font-weight:700;font-size:16px;min-height:28px;padding:2px 8px;border-width:1px;border-radius:7px}
 .trail .cur{font-family:var(--kanji);font-weight:700;font-size:16px;color:var(--text);padding:2px 8px;border-radius:7px;background:#f6e3de}
@@ -99,8 +106,15 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
 .cardtitle .big{font-size:26px;font-weight:700;line-height:1}
 .cardtitle .m{font-weight:600}
 .card>*{min-width:0}
-.carousel{max-width:100%;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -2px;scrollbar-width:thin}
-.ccard{flex:none;scroll-snap-align:start;position:relative;width:92px;display:grid;justify-items:center;gap:1px;padding:6px 3px 7px;min-height:0;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--text);border-radius:12px;font-family:var(--body);font-weight:500;box-shadow:0 2px 6px rgba(68,17,17,.1)}
+.card-only{container-type:inline-size}
+/* Every related kanji shows at every width: 3 across (2 when very narrow, 6 when wide), no scrolling. */
+.carousel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;padding:6px 0 2px}
+@container (min-width:520px){.carousel{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@container (max-width:259px){.carousel{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cstatusrow{display:flex;gap:8px;align-items:center}
+.cstatusrow .status{flex:1;min-width:0}
+.linkbtn{flex:none;min-height:36px;padding:4px 10px;font-size:13px}
+.ccard{position:relative;width:auto;min-width:0;display:grid;justify-items:center;gap:1px;padding:6px 3px 7px;min-height:0;border:1.5px solid var(--rc,var(--line));background:#fff;color:var(--text);border-radius:12px;font-family:var(--body);font-weight:500;box-shadow:0 2px 6px rgba(68,17,17,.1)}
 .ccard:hover:not(:disabled){background:#fff;color:var(--text);box-shadow:0 4px 12px rgba(68,17,17,.2)}
 .ccard .g{font-family:var(--kanji);font-weight:700;font-size:30px;line-height:1.1}
 .ccard .gl{font-size:11px;color:var(--muted);line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -121,12 +135,20 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
     <span class="sub" id="demo"></span>
   </header>
   <nav class="trail full-only" id="trail" aria-label="Where you have been"></nav>
-  <div class="stage full-only" id="stage">
-    <svg class="lines" id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
-    <button class="hub" id="hub" type="button" title="Brush it again" aria-label="Brush the center kanji again"><canvas id="c"></canvas><span class="q" id="hubq" hidden></span></button>
+  <div class="layout full-only">
+    <div class="stage" id="stage">
+      <svg class="lines" id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <button class="hub" id="hub" type="button" title="Brush it again" aria-label="Brush the center kanji again"><canvas id="c"></canvas><span class="q" id="hubq" hidden></span></button>
+    </div>
+    <div class="side">
+      <div class="legend" id="legend" role="group" aria-label="Show neighbors by relation"></div>
+      <div class="status" id="status" aria-live="polite"></div>
+      <section id="verdict" hidden></section>
+      <div class="hubinfo" id="hubinfo"></div>
+      <div class="parts" id="parts"></div>
+      <div class="actions" id="actions"></div>
+    </div>
   </div>
-  <div class="legend full-only" id="legend" role="group" aria-label="Show neighbors by relation"></div>
-  <div class="status full-only" id="status" aria-live="polite"></div>
   <section class="card-only" id="card" aria-label="Kanji compass, compact">
     <div class="cardtop">
       <div id="cardHub" class="cardhub"></div>
@@ -137,19 +159,11 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
       </div>
     </div>
     <div class="carousel" id="carousel" role="list" aria-label="Related kanji"></div>
-    <div class="status small" id="cStatus" aria-live="polite"></div>
+    <div class="cstatusrow"><div class="status small" id="cStatus" aria-live="polite"></div><button type="button" class="linkbtn" id="cMore" hidden>More ›</button></div>
     <div class="actions" id="cActions"></div>
   </section>
-  <section id="verdict" class="full-only" hidden></section>
-  <div class="hubinfo full-only" id="hubinfo"></div>
-  <div class="parts full-only" id="parts"></div>
-  <div class="actions full-only" id="actions"></div>
   <p class="err" id="err" hidden></p>
-  <footer class="foot">
-    <div class="brand">{{LOGO}}<span>Nihongoism</span></div>
-    <p class="note card-only">Structure and strokes: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>, CC BY-SA 3.0.</p>
-    <p class="note full-only">Relations are computed from <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>'s component tree (CC BY-SA 3.0) and the jōyō readings. The demo learner and "I know this" are held in this window only; nothing is recorded.</p>
-  </footer>
+{{FOOTER}}
 </main>
 <script>
 {{SCRIPT}}

@@ -1,5 +1,6 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 import { BrushPlayer, type PlayerState, type Stroke } from './brush-player';
+import { applySafeArea, wireHelp } from './host-ui';
 
 interface StrokeResult {
   character: string;
@@ -90,12 +91,7 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowRight') player.stepForward();
   else if (e.key === 'ArrowLeft') player.stepBack();
 });
-document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((a) =>
-  a.addEventListener('click', (e) => {
-    e.preventDefault();
-    app.openLink({ url: a.href }).catch(() => {});
-  }),
-);
+wireHelp(app);
 
 app.ontoolresult = (result) => {
   const r = result.structuredContent as StrokeResult | undefined;
@@ -103,4 +99,5 @@ app.ontoolresult = (result) => {
   else show(r);
 };
 
-app.connect().catch((e) => fail(`Could not reach the host: ${e?.message ?? e}`));
+app.onhostcontextchanged = () => applySafeArea(app);
+app.connect().then(() => applySafeArea(app)).catch((e) => fail(`Could not reach the host: ${e?.message ?? e}`));

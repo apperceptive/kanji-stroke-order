@@ -1,5 +1,6 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 import { BrushPlayer, type Stroke } from './brush-player';
+import { applySafeArea, wireHelp } from './host-ui';
 
 // --- shapes the server returns (src/tools/apps.ts, src/graph/*.ts) -----------------------------
 
@@ -407,12 +408,10 @@ function renderCard(arrive: boolean): void {
     return c;
   });
   const total = payload.ring.counts['phonetic-series'] + payload.ring.counts['shares-part'] + payload.ring.counts['built-on'];
-  if (payload.ring.pages > 1) {
-    const next = (payload.ring.page + 1) % payload.ring.pages;
-    cards.push(h('button', { class: 'ccard', type: 'button', style: 'align-content:center;min-height:90px', onclick: () => load(hb.c, { filter: payload.ring.relation, page: next }).catch(showError) }, h('span', { class: 'g' }, '›'), h('span', { class: 'gl' }, `${items.length} of ${total}`), h('span', { class: 'pill', style: '--rc:var(--muted)' }, 'more')));
-  }
+  const more = $<HTMLButtonElement>('cMore');
+  more.hidden = payload.ring.pages <= 1;
+  more.onclick = () => load(hb.c, { filter: payload.ring.relation, page: (payload.ring.page + 1) % payload.ring.pages }).catch(showError);
   fill($('carousel'), ...cards);
-  $('carousel').scrollLeft = 0;
   setCardStatus(total ? `${items.length} of ${total} related kanji. Kanji you know come first; tap one to make it the center.` : `${hb.c} has no related kanji in this set.`);
   fill($('cActions'),
     h('button', { type: 'button', class: 'solid', onclick: () => expand().catch(showError) }, 'Expand'),
@@ -584,12 +583,7 @@ function causeName(d: { relation: OptionRelation; via?: string }): string {
 // --- start ------------------------------------------------------------------------------------
 
 $('hub').addEventListener('click', () => player.replay());
-document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((a) =>
-  a.addEventListener('click', (e) => {
-    e.preventDefault();
-    app.openLink({ url: a.href }).catch(() => {});
-  }),
-);
+wireHelp(app);
 
 app.ontoolresult = (result) => {
   const p = result.structuredContent as Payload | undefined;
@@ -610,10 +604,11 @@ app.ontoolresult = (result) => {
   render(true);
 };
 app.onhostcontextchanged = () => {
+  applySafeArea(app);
   if (payload && (isFull() ? 'full' : 'card') !== shownLayout) {
     if (!isFull()) quiz = null;
     render(false);
   }
 };
 
-app.connect().catch((e) => showError(`Could not reach the host: ${e?.message ?? e}`));
+app.connect().then(() => applySafeArea(app)).catch((e) => showError(`Could not reach the host: ${e?.message ?? e}`));

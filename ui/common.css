@@ -11,7 +11,9 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:transparent}
+html,body{margin:0;background:transparent;overflow-x:hidden}
+/* The host's safe area: in fullscreen Claude puts its message box over the bottom of the app. */
+body{padding:var(--sa-top,0px) var(--sa-right,0px) var(--sa-bottom,0px) var(--sa-left,0px)}
 body{color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .card{background:var(--paper);border-radius:14px;box-shadow:0 1px 2px rgba(68,17,17,.14),0 6px 22px rgba(68,17,17,.12);max-width:640px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-left,0px)) 14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -32,7 +34,11 @@ select{font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid var(--bric
 footer.foot{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
 .brand{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px}
 .brand svg{height:18px;width:auto;display:block}
-.note{color:var(--muted);font-size:12px;margin:0;max-width:70ch}
-.note a{color:var(--brick)}
+.info{margin-left:auto;min-width:44px;min-height:44px;margin-block:-14px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:20px;font-weight:400}
+.info:hover:not(:disabled){background:transparent;color:var(--brick)}
+.help{background:#f8efe8;border-radius:9px;padding:10px 12px;font-size:12.5px;color:var(--text)}
+.help h2{font-family:var(--heading);font-size:14px;margin:0 0 6px}
+.help ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.help a{color:var(--brick)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}

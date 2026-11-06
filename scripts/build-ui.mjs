@@ -36,6 +36,8 @@ const logo = fs
   .replace(/^<\?xml[^>]*\?>/, '')
   .trim();
 
+const footer = fs.readFileSync(path.join(ui, 'footer.html'), 'utf8').replace('{{LOGO}}', () => logo);
+
 fs.mkdirSync(out, { recursive: true });
 for (const name of APPS) {
   const result = await build({
@@ -52,6 +54,7 @@ for (const name of APPS) {
   const html = fs
     .readFileSync(path.join(ui, `${name}.html`), 'utf8')
     .replace('{{STYLE}}', () => style)
+    .replace('{{FOOTER}}', () => footer)
     .replace('{{LOGO}}', () => logo)
     .replace('{{SCRIPT}}', () => script);
   fs.writeFileSync(path.join(out, `${name}.html`), html, 'utf8');

@@ -56,7 +56,7 @@ window.addEventListener('message', async (e) => {
   } else if (m.method === 'tools/call') {
     try { post({ id: m.id, result: await rpc('tools/call', m.params) }); } catch (err) { post({ id: m.id, error: { code: -32000, message: String(err.message) } }); }
   } else if (m.method === 'ui/notifications/size-changed') {
-    if (m.params?.height) f.style.height = m.params.height + 'px';
+    if (m.params?.height && !window.fixedHeight) f.style.height = m.params.height + 'px'; // set window.fixedHeight to test a host-sized frame such as fullscreen
   } else if (m.method === 'ui/request-display-mode') {
     post({ id: m.id, result: { mode: m.params.mode } });
     post({ method: 'ui/notifications/host-context-changed', params: { displayMode: m.params.mode } });
