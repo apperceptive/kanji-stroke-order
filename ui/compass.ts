@@ -549,7 +549,6 @@ function render(arrive: boolean): void {
 async function startQuiz(kind: 'form' | 'sound'): Promise<void> {
   const q = await call<PublicQuestion>('compass_question', { target: payload.hub.c, kind, met: [...met] });
   quiz = { q };
-  if (kind === 'sound') player.replay();
   render(false);
 }
 
