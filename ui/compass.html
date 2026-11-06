@@ -106,6 +106,13 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
 .cardtitle .big{font-size:26px;font-weight:700;line-height:1}
 .cardtitle .m{font-weight:600}
 .card>*{min-width:0}
+.closebox{margin:-6px -8px -6px 8px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:26px;font-weight:400;line-height:1}
+.closebox:hover:not(:disabled){background:transparent;color:var(--brick)}
+header.top{flex-wrap:nowrap}
+header.top .sub{margin-left:auto}
+/* The two quiz buttons share one bordered group with its label. */
+.qgroup{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:12px;padding:5px 8px 5px 12px;background:#fff}
+.qlabel{font-family:var(--heading);font-weight:700;font-size:14px;color:var(--muted)}
 .card-only{container-type:inline-size}
 /* Every related kanji shows at every width: 3 across (2 when very narrow, 6 when wide), no scrolling. */
 .carousel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;padding:6px 0 2px}
@@ -141,6 +148,7 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
   <header class="top full-only">
     <h1 class="title">Kanji compass</h1>
     <span class="sub" id="demo"></span>
+    <button type="button" class="closebox" id="closeBtn" aria-label="Back to card" title="Back to card">×</button>
   </header>
   <nav class="trail full-only" id="trail" aria-label="Where you have been"></nav>
   <div class="layout full-only">

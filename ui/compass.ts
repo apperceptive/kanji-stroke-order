@@ -230,6 +230,9 @@ function setStatus(html: Node | string, rc = ''): void {
   s.replaceChildren(...(typeof html === 'string' ? [document.createTextNode(html)] : [html]));
 }
 
+/** Why a kanji is dimmed, for its tooltip (P-025: two look-alikes are not introduced in one session). */
+const laterNote = (it: RingItem) => `Later: ${it.k} is easy to confuse with ${it.lockedBy}, which is new this session. It waits for another day.`;
+
 function explain(it: RingItem): void {
   const frag = document.createDocumentFragment();
   frag.append(h('span', { class: 'tag' }, it.label), ' ');
@@ -262,7 +265,8 @@ function renderRing(animate: boolean): void {
       h('span', { class: 'badge' }, it.locked ? 'later' : it.met ? '✓' : 'new'),
     );
     t.addEventListener('click', () => (it.locked ? explain(it) : moveTo(it.k, t)));
-    for (const ev of ['mouseenter', 'focus'] as const) t.addEventListener(ev, () => explain(it));
+    if (it.locked) t.title = laterNote(it);
+    else for (const ev of ['mouseenter', 'focus'] as const) t.addEventListener(ev, () => explain(it));
     stage.append(t);
     const l = line(x, y, rc);
     $('lines').append(l);
@@ -335,12 +339,18 @@ function renderActions(): void {
       }
       await load(hb.c).catch(showError);
     }, { class: met.has(hb.c) ? 'solid' : '' }),
-    b('Quiz: which kanji?', () => startQuiz('form').catch(showError)),
-    hb.on.length ? b('Quiz: how is it read?', () => startQuiz('sound').catch(showError)) : null,
-    b('Ask Claude', () => {
+    h(
+      'div',
+      { class: 'qgroup', role: 'group', 'aria-label': 'Quiz' },
+      h('span', { class: 'qlabel' }, 'Quiz'),
+      b('Which kanji?', () => startQuiz('form').catch(showError)),
+      hb.on.length ? b('How is it read?', () => startQuiz('sound').catch(showError)) : null,
+    ),
+    b('Ask Claude', async () => {
+      // The reply lands in the conversation, which fullscreen hides behind the app, so go back to the card first.
+      await collapse().catch(() => {});
       app.sendMessage({ role: 'user', content: [{ type: 'text', text: `Tell me about ${hb.c} (${hb.gloss}): what its parts and the kanji around it on the compass teach.` }] }).catch(() => setStatus('This host does not let the compass send a message to the chat.'));
     }, { class: 'grow' }),
-    b('Back to card', () => collapse().catch(showError)),
   );
 }
 
@@ -407,7 +417,8 @@ function renderCard(arrive: boolean): void {
       h('span', { class: 'badge' }, it.locked ? 'later' : it.met ? '✓' : 'new'),
     );
     c.addEventListener('click', () => (it.locked ? explainCard(it) : moveTo(it.k)));
-    for (const ev of ['mouseenter', 'focus'] as const) c.addEventListener(ev, () => explainCard(it));
+    if (it.locked) c.title = laterNote(it);
+    else for (const ev of ['mouseenter', 'focus'] as const) c.addEventListener(ev, () => explainCard(it));
     return c;
   });
   const total = payload.ring.counts['phonetic-series'] + payload.ring.counts['shares-part'] + payload.ring.counts['built-on'];
@@ -629,6 +640,7 @@ function causeName(d: { relation: OptionRelation; via?: string }): string {
 // --- start ------------------------------------------------------------------------------------
 
 $('hub').addEventListener('click', () => player.replay());
+$('closeBtn').addEventListener('click', () => collapse().catch(showError));
 wireHelp(app);
 
 app.ontoolresult = (result) => {
