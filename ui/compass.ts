@@ -189,14 +189,16 @@ async function moveTo(k: string, tile?: HTMLElement): Promise<void> {
     }
     if (!met.has(k)) introduced.add(k);
     const from = payload?.hub.c;
-    await load(k, { arrive: true, after: tile ? sleep(320) : undefined });
-    // Going back to a kanji already on the trail cuts the trail there; anything else extends it.
+    // Going back to a kanji already on the trail cuts the trail there; anything else extends it. It is set before
+    // the redraw so what the card says about "back" is already right.
     trail = trail.includes(k) ? trail.slice(0, trail.indexOf(k) + 1) : [...trail, k];
+    await load(k, { arrive: true, after: tile ? sleep(320) : undefined });
     renderTrail();
     tellModel(`The learner moved the kanji compass to ${k} (${payload.hub.gloss})${from ? ` from ${from}` : ''}. Its ring now shows ${payload.ring.items.map((i) => `${i.k} (${i.label})`).join(', ')}.`);
   } catch (e) {
     showError(e);
     introduced.delete(k);
+    trail = trail.filter((x, i) => !(i === trail.length - 1 && x === k && trail.length > 1));
   } finally {
     busy = false;
   }
@@ -402,6 +404,8 @@ function renderCard(arrive: boolean): void {
   $('cGloss').textContent = hb.gloss;
   $('cMeta').textContent = [hb.reading, hb.grade ? `grade ${hb.grade}` : '', `${hb.strokeCount} strokes`, payload.demo ? 'demo learner' : ''].filter(Boolean).join(' · ');
   $('cParts').textContent = hb.parts.length ? `Made of ${hb.parts.map((p) => p.shown + (ROLE_NAME[p.role] ? ` (${ROLE_NAME[p.role]})` : '')).join(' + ')}` : `A part of other kanji; no parts of its own.`;
+  const prev = trail.length > 1 ? trail[trail.length - 2] : null;
+  fill($('cBack'), prev ? h('button', { type: 'button', class: 'linkbtn', onclick: () => moveTo(prev) }, `‹ Back to ${prev}`) : null);
   const items = payload.ring.items;
   const cards = items.map((it) => {
     const rc = REL_CLASS[it.relation];
@@ -423,12 +427,11 @@ function renderCard(arrive: boolean): void {
     else for (const ev of ['mouseenter', 'focus'] as const) c.addEventListener(ev, () => explainCard(it));
     return c;
   });
-  const total = payload.ring.counts['phonetic-series'] + payload.ring.counts['shares-part'] + payload.ring.counts['built-on'];
   const more = $<HTMLButtonElement>('cMore');
   more.hidden = payload.ring.pages <= 1;
   more.onclick = () => load(hb.c, { filter: payload.ring.relation, page: (payload.ring.page + 1) % payload.ring.pages }).catch(showError);
   fill($('carousel'), ...cards);
-  setCardStatus(total ? `${items.length} of ${total} related kanji. Kanji you know come first; tap one to make it the center.` : `${hb.c} has no related kanji in this set.`);
+  setCardStatus(ringNote(true));
   fill($('cActions'),
     h('button', { type: 'button', class: 'solid', onclick: () => expand().catch(showError) }, 'Expand'),
     h('button', { type: 'button', onclick: () => startQuiz('form').catch(showError) }, 'Quiz me'),
@@ -478,6 +481,27 @@ function renderCardQuiz(): void {
   );
 }
 
+/**
+ * What to say under the ring, including when nothing in it can be opened yet: a kanji that is new this session
+ * dims everything easy to confuse with it, and a new learner has met few kanji, so the whole ring can be dimmed.
+ */
+function ringNote(inCard: boolean): string {
+  const r = payload.ring;
+  const hb = payload.hub;
+  const total = r.counts['phonetic-series'] + r.counts['shares-part'] + r.counts['built-on'];
+  if (!total) return `${hb.c} has no related kanji in this set.`;
+  const by = r.items.find((i) => i.lockedBy)?.lockedBy ?? hb.c;
+  const open = r.items.filter((i) => !i.locked).length;
+  const filter = !inCard && r.relation !== 'all' ? ` by “${REL_NAME[r.relation].toLowerCase()}”` : '';
+  const shown = `${r.items.length} of ${total} ${inCard ? 'related kanji' : 'neighbors'}${filter}`;
+  if (open === 0) {
+    const back = trail.length > 1 ? `, or go back to ${trail[trail.length - 2]}` : '';
+    const unlock = inCard ? `Take the quiz on ${hb.c} to unlock them${back}.` : `Mark ${hb.c} as known or take its quiz to unlock them${back}.`;
+    return `${shown}. We'll visit these later: they are easy to confuse with ${by}, which is new. ${unlock}`;
+  }
+  return `${shown}. Kanji you know come first; tap one to make it the center.${r.lockedCount ? ` We'll visit the dimmed ones later.` : ''}`;
+}
+
 function setCardStatus(t: string | Node): void {
   $('cStatus').replaceChildren(typeof t === 'string' ? document.createTextNode(t) : t);
 }
@@ -515,11 +539,7 @@ function render(arrive: boolean): void {
   renderHubInfo();
   renderActions();
   $('verdict').hidden = true;
-  const r = payload.ring;
-  const total = r.counts['phonetic-series'] + r.counts['shares-part'] + r.counts['built-on'];
-  defaultStatus = total
-    ? `${r.items.length} of ${total} neighbors${r.relation === 'all' ? '' : ` by “${REL_NAME[r.relation].toLowerCase()}”`}. Kanji you know come first. Pick one to move there${r.lockedCount ? `; we'll visit the ${r.lockedCount} that are easy to confuse with a new kanji later` : ''}.`
-    : `${payload.hub.c} has no neighbors in this set.`;
+  defaultStatus = ringNote(false);
   setStatus(defaultStatus);
 }
 
