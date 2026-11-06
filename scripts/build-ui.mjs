@@ -2,7 +2,7 @@
 //
 //   node scripts/build-ui.mjs
 //
-// An app is ui/<name>.html (markup, with {{STYLE}}, {{LOGO}} and {{SCRIPT}} placeholders) plus ui/<name>.ts
+// An app is ui/<name>.html (markup, with {{STYLE}}, {{WINCTL}}, {{FOOTER}}, {{LOGO}} and {{SCRIPT}} placeholders) plus ui/<name>.ts
 // (its script). The brush engine is vendored verbatim in ui/vendor/brush-engine.js; the 'brush-core' module the
 // scripts import is that file with its page glue cut off, wrapped in a function that takes the brush config.
 import fs from 'node:fs';
@@ -38,6 +38,8 @@ const logo = fs
 
 const footer = fs.readFileSync(path.join(ui, 'footer.html'), 'utf8').replace('{{LOGO}}', () => logo);
 
+const winctl = fs.readFileSync(path.join(ui, 'winctl.html'), 'utf8');
+
 fs.mkdirSync(out, { recursive: true });
 for (const name of APPS) {
   const result = await build({
@@ -54,6 +56,7 @@ for (const name of APPS) {
   const html = fs
     .readFileSync(path.join(ui, `${name}.html`), 'utf8')
     .replace('{{STYLE}}', () => style)
+    .replaceAll('{{WINCTL}}', () => winctl)
     .replace('{{FOOTER}}', () => footer)
     .replace('{{LOGO}}', () => logo)
     .replace('{{SCRIPT}}', () => script);

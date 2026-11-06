@@ -67,7 +67,7 @@ Two interactive apps, served over the same `/mcp` endpoint, for judging whether 
 | Tool | App | What the learner can do |
 |------|-----|-------------------------|
 | `show_strokes` | Stroke player | Watch a kanji brushed stroke by stroke, and play, pause, step either way, scrub and replay at their own pace. Drawn by the brush-kanji engine from KanjiVG strokes. |
-| `open_compass` | Kanji compass | Opens as a compact card (the hub, a scrolling row of up to six related kanji labeled with their relations, and two actions); choose a neighbor to make it the hub. Expand opens the full compass (fullscreen where the host offers it, otherwise inline) with the ring, relation filters, and a quiz whose wrong options name the relation that caused them. |
+| `open_compass` | Kanji compass | Opens as a compact card (the hub, a scrolling row of up to six related kanji labeled with their relations, and two actions); choose a neighbor to make it the hub. Expand (an icon in the top right of every app, beside close once expanded) opens the full compass (fullscreen where the host offers it, otherwise inline) with the ring, relation filters, and a quiz whose wrong options name the relation that caused them. |
 
 Relations (Apperceptive Pedagogy D-P9), computed from KanjiVG's component tree and the jōyō readings:
 

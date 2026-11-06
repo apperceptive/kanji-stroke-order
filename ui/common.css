@@ -45,5 +45,12 @@ footer.foot{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10
 .help-box a{color:var(--brick)}
 .help-x{position:absolute;top:4px;right:4px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:24px;font-weight:400;line-height:1}
 .help-x:hover:not(:disabled){background:transparent;color:var(--brick)}
+/* Expand and close, top right of every app (ui/winctl.html). Close shows only in the full view. */
+.winctl{display:flex;align-items:center;flex:none;margin:-6px -8px -6px 0}
+.wc{min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center}
+.wc:hover:not(:disabled){background:transparent;color:var(--brick)}
+.wc[hidden]{display:none}
+body:not([data-display=full]) .wc[data-act=close],body:not([data-display=full]) .i-restore,body[data-display=full] .i-expand{display:none}
+header.top .right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}

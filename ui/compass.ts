@@ -1,6 +1,6 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 import { BrushPlayer, type Stroke } from './brush-player';
-import { applySafeArea, wireHelp } from './host-ui';
+import { applySafeArea, wireHelp, wireWindowControls } from './host-ui';
 
 // --- shapes the server returns (src/tools/apps.ts, src/graph/*.ts) -----------------------------
 
@@ -124,6 +124,7 @@ function tellModel(text: string): void {
 
 let localFull = false;
 let shownLayout: 'card' | 'full' | null = null;
+let syncWindow = () => {};
 const hostFullscreen = () => app.getHostContext()?.displayMode === 'fullscreen';
 const canFullscreen = () => !!app.getHostContext()?.availableDisplayModes?.includes('fullscreen');
 const isFull = () => hostFullscreen() || localFull;
@@ -138,6 +139,7 @@ function applyLayout(): boolean {
   if ($('hub').parentElement !== slot) slot.append($('hub'));
   const changed = layout !== shownLayout;
   shownLayout = layout;
+  syncWindow();
   return changed;
 }
 
@@ -662,7 +664,8 @@ function causeName(d: { relation: OptionRelation; via?: string }): string {
 // --- start ------------------------------------------------------------------------------------
 
 $('hub').addEventListener('click', () => player.replay());
-$('closeBtn').addEventListener('click', () => collapse().catch(showError));
+// Hosts without a fullscreen mode still expand: the compass opens its full layout inline.
+syncWindow = wireWindowControls({ isFull, canExpand: () => true, expand, collapse }, showError);
 wireHelp(app);
 
 app.ontoolresult = (result) => {

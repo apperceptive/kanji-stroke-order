@@ -6,15 +6,17 @@
 <title>Nihongoism stroke player</title>
 <style>
 {{STYLE}}
-.sheet{background:#fffdf8;border:1px solid var(--line);border-radius:6px;aspect-ratio:1;width:100%;max-width:420px;margin:0 auto;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+/* Expanded into the panel, the sheet grows to the height available (the message box covers the bottom). */
+body[data-display=full] .card{--w:max(420px,min(640px,calc(100vh - 330px - var(--sa-top,0px) - var(--sa-bottom,0px))));max-width:720px}
+.sheet{background:#fffdf8;border:1px solid var(--line);border-radius:6px;aspect-ratio:1;width:100%;max-width:var(--w,420px);margin:0 auto;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
 .sheet canvas{display:block;width:100%;height:100%}
 .status{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);min-height:20px}
 .status b{color:var(--text);font-weight:600}
-.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:420px;margin:0 auto;width:100%}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:var(--w,420px);margin:0 auto;width:100%}
 .controls button{padding:9px 6px}
-.wide{max-width:420px;margin:0 auto;width:100%}
-.opts{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;width:100%}
-.chips{display:flex;flex-wrap:wrap;gap:6px;max-width:420px;margin:0 auto;width:100%}
+.wide{max-width:var(--w,420px);margin:0 auto;width:100%}
+.opts{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;max-width:var(--w,420px);margin:0 auto;width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-width:var(--w,420px);margin:0 auto;width:100%}
 .chip{font-family:var(--body);font-weight:500;font-size:12.5px;padding:5px 9px;min-height:30px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--text)}
 .chip:hover:not(:disabled){background:#f6e9e2;color:var(--text)}
 .chip.on{border-color:var(--brick);background:#f6e3de;color:var(--brick-dark)}
@@ -26,7 +28,7 @@
 <main class="card" aria-label="Stroke player">
   <header class="top">
     <h1 class="title"><span class="jp" id="kj" style="font-size:22px"></span> <span id="gl" class="sub"></span></h1>
-    <span class="sub" id="meta"></span>
+    <div class="right"><span class="sub" id="meta"></span>{{WINCTL}}</div>
   </header>
   <div class="sheet"><canvas id="c" role="img" aria-label="The kanji brushed stroke by stroke"></canvas></div>
   <div class="status" aria-live="polite"><span id="where"></span><span id="type"></span></div>

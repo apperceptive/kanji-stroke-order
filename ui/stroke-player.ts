@@ -1,6 +1,6 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 import { BrushPlayer, type PlayerState, type Stroke } from './brush-player';
-import { applySafeArea, wireHelp } from './host-ui';
+import { applySafeArea, hostWindow, wireHelp, wireWindowControls } from './host-ui';
 import { strokeName } from '../src/graph/stroke-names';
 
 interface StrokeResult {
@@ -98,5 +98,10 @@ app.ontoolresult = (result) => {
   else show(r);
 };
 
-app.onhostcontextchanged = () => applySafeArea(app);
-app.connect().then(() => applySafeArea(app)).catch((e) => fail(`Could not reach the host: ${e?.message ?? e}`));
+const syncWindow = wireWindowControls(hostWindow(app), (e) => fail(e instanceof Error ? e.message : String(e)));
+app.onhostcontextchanged = () => {
+  applySafeArea(app);
+  syncWindow();
+  document.documentElement.style.overflowY = document.body.dataset.display === 'full' ? 'auto' : 'hidden';
+};
+app.connect().then(() => { applySafeArea(app); syncWindow(); }).catch((e) => fail(`Could not reach the host: ${e?.message ?? e}`));

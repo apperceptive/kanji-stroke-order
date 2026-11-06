@@ -106,8 +106,7 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
 .cardtitle .big{font-size:26px;font-weight:700;line-height:1}
 .cardtitle .m{font-weight:600}
 .card>*{min-width:0}
-.closebox{margin:-6px -8px -6px 8px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:26px;font-weight:400;line-height:1}
-.closebox:hover:not(:disabled){background:transparent;color:var(--brick)}
+.cardctl{margin-left:auto;align-self:flex-start}
 header.top{flex-wrap:nowrap}
 header.top .sub{margin-left:auto}
 /* The two quiz buttons share one bordered group with its label. */
@@ -148,7 +147,7 @@ header.top .sub{margin-left:auto}
   <header class="top full-only">
     <h1 class="title">Kanji compass</h1>
     <span class="sub" id="demo"></span>
-    <button type="button" class="closebox" id="closeBtn" aria-label="Back to card" title="Back to card">×</button>
+    {{WINCTL}}
   </header>
   <nav class="trail full-only" id="trail" aria-label="Where you have been"></nav>
   <div class="layout full-only">
@@ -174,6 +173,7 @@ header.top .sub{margin-left:auto}
         <div class="sub" id="cParts"></div>
         <div id="cBack"></div>
       </div>
+      <div class="cardctl">{{WINCTL}}</div>
     </div>
     <div class="carousel" id="carousel" role="list" aria-label="Related kanji"></div>
     <div class="cstatusrow"><div class="status small" id="cStatus" aria-live="polite"></div><button type="button" class="linkbtn" id="cMore" hidden>More ›</button></div>
