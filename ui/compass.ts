@@ -350,9 +350,10 @@ function renderActions(): void {
       b('Which kanji?', () => startQuiz('form').catch(showError)),
       hb.on.length ? b('How is it read?', () => startQuiz('sound').catch(showError)) : null,
     ),
-    b('Ask Claude', async () => {
-      // The reply lands in the conversation, which fullscreen hides behind the app, so go back to the card first.
-      await collapse().catch(() => {});
+    b('Ask about this', async () => {
+      // Claude's fullscreen hides the conversation behind the app, so the reply would be out of sight: go back to the
+      // card first. A side panel (ChatGPT) leaves the conversation beside the app, so stay where we are.
+      if (hostFullscreen() && window.innerWidth >= 900) await collapse().catch(() => {});
       app.sendMessage({ role: 'user', content: [{ type: 'text', text: `Tell me about ${hb.c} (${hb.gloss}): what its parts and the kanji around it on the compass teach.` }] }).catch(() => setStatus('This host does not let the compass send a message to the chat.'));
     }, { class: 'grow' }),
   );
