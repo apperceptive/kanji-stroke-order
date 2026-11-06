@@ -36,9 +36,14 @@ footer.foot{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10
 .brand svg{height:18px;width:auto;display:block}
 .info{margin-left:auto;min-width:44px;min-height:44px;margin-block:-14px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:20px;font-weight:400}
 .info:hover:not(:disabled){background:transparent;color:var(--brick)}
-.help{background:#f8efe8;border-radius:9px;padding:10px 12px;font-size:12.5px;color:var(--text)}
-.help h2{font-family:var(--heading);font-size:14px;margin:0 0 6px}
-.help ul{margin:0;padding-left:18px;display:grid;gap:6px}
-.help a{color:var(--brick)}
+/* The sources dialog: a small panel over the app, closed by its button, a click outside, or Escape. */
+.scrim{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:10px;background:rgba(68,17,17,.38)}
+.scrim[hidden]{display:none}
+.help-box{position:relative;background:var(--paper);border-radius:12px;padding:16px 18px 14px;max-width:460px;max-height:100%;overflow:auto;font-size:13px;box-shadow:0 10px 30px rgba(68,17,17,.35)}
+.help-box h2{font-family:var(--heading);font-size:16px;margin:0 36px 8px 0}
+.help-box ul{margin:0;padding-left:18px;display:grid;gap:7px}
+.help-box a{color:var(--brick)}
+.help-x{position:absolute;top:4px;right:4px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:24px;font-weight:400;line-height:1}
+.help-x:hover:not(:disabled){background:transparent;color:var(--brick)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}

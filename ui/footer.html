@@ -1,9 +1,12 @@
   <footer class="foot">
     <div class="brand">{{LOGO}}<span>Nihongoism</span>
-      <button type="button" class="info" id="helpBtn" aria-expanded="false" aria-controls="help" title="Sources and licenses"><span aria-hidden="true">ⓘ</span><span class="sr">Sources and licenses</span></button>
+      <button type="button" class="info" id="helpBtn" aria-haspopup="dialog" aria-expanded="false" title="Sources and licenses"><span aria-hidden="true">ⓘ</span><span class="sr">Sources and licenses</span></button>
     </div>
-    <div class="help" id="help" hidden>
-      <h2>Sources and licenses</h2>
+  </footer>
+  <div class="scrim" id="help" hidden>
+    <div class="help-box" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button type="button" class="help-x" id="helpClose" aria-label="Close">×</button>
+      <h2 id="helpTitle">Sources and licenses</h2>
       <ul>
         <li><b>Strokes and structure:</b> <a href="https://kanjivg.tagaini.net/">KanjiVG</a> (Ulrich Apel and contributors), <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>. The relations between kanji are computed from KanjiVG's component tree.</li>
         <li><b>Readings, meanings and grades:</b> from KANJIDIC, used under the <a href="https://www.edrdg.org/edrdg/licence.html">EDRDG licence</a>. KRADFILE (EDRDG) is used only as a cross-check.</li>
@@ -11,4 +14,4 @@
         <li>This prototype records nothing. The demo learner and "I know this" exist only in this window.</li>
       </ul>
     </div>
-  </footer>
+  </div>

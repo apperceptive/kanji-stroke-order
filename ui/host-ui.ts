@@ -3,11 +3,23 @@ import type { App } from '@modelcontextprotocol/ext-apps';
 /** The sources-and-licenses control in the footer, and links that open through the host. */
 export function wireHelp(app: App): void {
   const btn = document.getElementById('helpBtn')!;
-  const panel = document.getElementById('help')!;
-  btn.addEventListener('click', () => {
-    const open = panel.hidden;
-    panel.hidden = !open;
+  const dialog = document.getElementById('help')!;
+  const close = document.getElementById('helpClose')!;
+  const show = (open: boolean) => {
+    dialog.hidden = !open;
     btn.setAttribute('aria-expanded', String(open));
+    (open ? close : btn).focus();
+  };
+  btn.addEventListener('click', () => show(true));
+  close.addEventListener('click', () => show(false));
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) show(false); // a click on the dimmed area outside the box
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !dialog.hidden) {
+      e.stopPropagation();
+      show(false);
+    }
   });
   document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((a) =>
     a.addEventListener('click', (e) => {
