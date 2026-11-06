@@ -1,6 +1,7 @@
 import { App } from '@modelcontextprotocol/ext-apps';
 import { BrushPlayer, type PlayerState, type Stroke } from './brush-player';
 import { applySafeArea, wireHelp } from './host-ui';
+import { strokeName } from '../src/graph/stroke-names';
 
 interface StrokeResult {
   character: string;
@@ -13,14 +14,7 @@ interface StrokeResult {
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
-// KanjiVG stroke type symbols, named for a learner. The first symbol decides; a few families share a name.
-const NAMES: Record<string, string> = {
-  '㇐': 'horizontal', '㇑': 'vertical', '㇒': 'left sweep', '㇓': 'left sweep', '㇔': 'dot', '㇏': 'right sweep',
-  '㇀': 'rising stroke', '㇕': 'turn', '㇆': 'turn with hook', '㇖': 'hook', '㇚': 'vertical hook', '㇟': 'curved hook',
-  '㇂': 'curved hook', '㇛': 'hook', '㇗': 'turn', '㇙': 'turn', '㇄': 'turn', '㇅': 'turn', '㇈': 'turn', '㇊': 'turn',
-  '㇋': 'turn', '㇌': 'turn', '㇍': 'turn', '㇎': 'turn', '㇇': 'turn', '㇉': 'turn', '㇁': 'hook', '㇃': 'turn',
-};
-const nameOf = (type: string) => NAMES[[...type.split('/').pop()!][0]] ?? 'stroke';
+const nameOf = strokeName;
 
 const app = new App({ name: 'Nihongoism stroke player', version: '0.1.0' });
 // The host sizes the frame to the content, so a scrollbar inside it is only ever a rounding artifact.

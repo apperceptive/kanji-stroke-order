@@ -4,7 +4,9 @@ import { registerAppTools } from './tools/apps.js';
 
 export function createServer(): McpServer {
   const server = new McpServer({
-    name: 'kanji-stroke-order',
+    // Hosts show this as the connector's name (Gemini takes it from here), so it is the product's name.
+    name: 'nihongoism',
+    title: 'Nihongoism',
     version: '0.1.0',
   });
 

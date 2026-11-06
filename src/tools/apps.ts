@@ -6,6 +6,7 @@ import { getNode, gloss, readings } from '../graph/graph.js';
 import { buildRing, centerParts, RELATIONS, type CompassState, type Ring } from '../graph/relations.js';
 import { buildQuestion, judge, publicQuestion } from '../graph/questions.js';
 import { getStrokes, type Stroke } from '../data/strokes.js';
+import { strokeName } from '../graph/stroke-names.js';
 
 /**
  * The two Nihongoism MCP Apps. Their markup is built from ui/ at build time and served as-is: presentation
@@ -127,7 +128,7 @@ export function registerAppTools(server: McpServer): void {
       if (!strokes) return text(`No stroke data for "${character}".`, true);
       const n = getNode(character);
       return {
-        content: [{ type: 'text', text: `Stroke player shown for ${character}${n ? ` (${gloss(n)}; ${readings(n)})` : ''}, ${strokes.length} strokes. The learner controls the pace.` }],
+        content: [{ type: 'text', text: `Stroke order for ${character}${n ? ` (${gloss(n)}; ${readings(n)})` : ''}, ${strokes.length} strokes in writing order: ${strokes.map((st, i) => `${i + 1} ${strokeName(st[0])}`).join(', ')}. Hosts that support MCP Apps also show an interactive player the learner controls; if none is visible, say so and give the order from this list.` }],
         structuredContent: { character, gloss: n ? gloss(n) : '', on: n?.on ?? [], kun: n?.kun ?? [], reading: n ? readings(n) : '', strokes },
       };
     },
@@ -159,7 +160,7 @@ export function registerAppTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Compass opened on ${p.hub.c} (${p.hub.gloss}; ${p.hub.reading}). Parts: ${p.hub.parts.map((x) => `${x.shown} (${x.role})`).join(', ') || 'none'}.\nRing (${p.ring.items.length} of ${total} neighbors; phonetic-series ${c['phonetic-series']}, shares-part ${c['shares-part']}, built-on ${c['built-on']}):\n${lines.join('\n')}${demo ? '\nNo learner state was passed, so a demo learner who knows 15 kanji is assumed.' : ''}`,
+              text: `Kanji compass for ${p.hub.c} (${p.hub.gloss}; ${p.hub.reading}). Parts: ${p.hub.parts.map((x) => `${x.shown} (${x.role})`).join(', ') || 'none'}.\nRelated kanji (${p.ring.items.length} of ${total}; hosts that support MCP Apps show these as an interactive compass, otherwise describe them from this list; phonetic-series ${c['phonetic-series']}, shares-part ${c['shares-part']}, built-on ${c['built-on']}):\n${lines.join('\n')}${demo ? '\nNo learner state was passed, so a demo learner who knows 15 kanji is assumed.' : ''}`,
             },
           ],
           structuredContent: p as unknown as Record<string, unknown>,
