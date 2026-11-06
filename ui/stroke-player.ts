@@ -36,7 +36,8 @@ function paint(s: PlayerState): void {
   const busy = s.inStroke > 0;
   const shown = busy ? s.completed + 1 : s.completed;
   $('where').innerHTML = s.total ? (shown === 0 ? `<b>${s.total}</b> strokes` : s.completed === s.total ? `All <b>${s.total}</b> strokes` : `Stroke <b>${shown}</b> of ${s.total}`) : '';
-  $('type').textContent = shown > 0 && strokes[shown - 1] ? nameOf(strokes[shown - 1][0]) : '';
+  // The stroke's type names the stroke on the page; once the character is complete there is no current stroke.
+  $('type').textContent = shown > 0 && s.completed < s.total && strokes[shown - 1] ? nameOf(strokes[shown - 1][0]) : '';
   const play = $<HTMLButtonElement>('play');
   play.textContent = s.running ? 'Pause' : s.completed >= s.total && s.total ? 'Again' : s.completed > 0 || busy ? 'Resume' : 'Play';
   $<HTMLButtonElement>('back').disabled = s.completed === 0 && !busy;
