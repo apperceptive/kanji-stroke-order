@@ -23,6 +23,8 @@ const NAMES: Record<string, string> = {
 const nameOf = (type: string) => NAMES[[...type.split('/').pop()!][0]] ?? 'stroke';
 
 const app = new App({ name: 'Nihongoism stroke player', version: '0.1.0' });
+// The host sizes the frame to the content, so a scrollbar inside it is only ever a rounding artifact.
+document.documentElement.style.overflowY = 'hidden';
 const canvas = $<HTMLCanvasElement>('c');
 let strokes: Stroke[] = [];
 let last: PlayerState = { completed: 0, total: 0, running: false, inStroke: 0 };

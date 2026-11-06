@@ -151,7 +151,7 @@ export function registerAppTools(server: McpServer): void {
         const p = await hubPayload(a.hub, state, 'all', 0, demo);
         const lines = p.ring.items.map(
           (i) =>
-            `${i.k} (${i.gloss}; ${i.reading || 'no on-reading'}) · ${i.label}${i.note ? ` · ${i.note}` : ''}${i.met ? '' : ' · new'}${i.locked ? ` · waits: confusable with ${i.lockedBy}, new this session` : ''}`,
+            `${i.k} (${i.gloss}; ${i.reading || 'no on-reading'}) · ${i.label}${i.note ? ` · ${i.note}` : ''}${i.met ? '' : ' · new'}${i.locked ? ` · for later: easy to confuse with ${i.lockedBy}, new this session` : ''}`,
         );
         const c = p.ring.counts;
         const total = c['phonetic-series'] + c['shares-part'] + c['built-on'];

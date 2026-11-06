@@ -211,7 +211,7 @@ export interface RingItem {
   gloss: string;
   reading: string;
   met: boolean;
-  /** Unmet and confusable with a kanji introduced this session: it waits for another day (P-025 rule 1). */
+  /** Unmet and confusable with a kanji introduced this session: it is left for later (P-025 rule 1). */
   locked: boolean;
   lockedBy?: string;
   inSeed: boolean;

@@ -132,6 +132,8 @@ const isFull = () => hostFullscreen() || localFull;
 function applyLayout(): boolean {
   const layout = isFull() ? 'full' : 'card';
   document.body.dataset.layout = layout;
+  // Inline, the host sizes the frame to the content, so a scrollbar there is only ever a rounding artifact.
+  document.documentElement.style.overflowY = hostFullscreen() ? 'auto' : 'hidden';
   const slot = layout === 'full' ? $('stage') : $('cardHub');
   if ($('hub').parentElement !== slot) slot.append($('hub'));
   const changed = layout !== shownLayout;
@@ -231,14 +233,14 @@ function setStatus(html: Node | string, rc = ''): void {
 }
 
 /** Why a kanji is dimmed, for its tooltip (P-025: two look-alikes are not introduced in one session). */
-const laterNote = (it: RingItem) => `Later: ${it.k} is easy to confuse with ${it.lockedBy}, which is new this session. It waits for another day.`;
+const laterNote = (it: RingItem) => `We'll visit this later. ${it.k} is easy to confuse with ${it.lockedBy}, which is new this session.`;
 
 function explain(it: RingItem): void {
   const frag = document.createDocumentFragment();
   frag.append(h('span', { class: 'tag' }, it.label), ' ');
   frag.append(jp(it.k), ` (${it.gloss}${it.reading ? `; ${it.reading}` : ''}). `);
   if (it.note) frag.append(it.note.charAt(0).toUpperCase() + it.note.slice(1) + '. ');
-  if (it.locked) frag.append(`It waits for another day: it is easy to confuse with ${it.lockedBy}, which is new this session.`);
+  if (it.locked) frag.append(`We'll visit this later. It is easy to confuse with ${it.lockedBy}, which is new this session.`);
   else if (!it.met) frag.append('New to you.');
   setStatus(frag, REL_CLASS[it.relation]);
 }
@@ -256,7 +258,7 @@ function renderRing(animate: boolean): void {
         class: `tile ${rc} ${it.met ? 'met' : ''} ${it.locked ? 'locked' : ''} ${focusK === it.k ? 'focus' : ''}`,
         type: 'button',
         style: `--x:${x}%;--y:${y}%;--i:${animate ? i : 0}`,
-        'aria-label': `${it.k}, ${it.gloss}. ${it.label}.${it.met ? '' : ' New.'}${it.locked ? ' Waits for another day.' : ''}`,
+        'aria-label': `${it.k}, ${it.gloss}. ${it.label}.${it.met ? '' : ' New.'}${it.locked ? ` We'll visit this later.` : ''}`,
         'aria-disabled': it.locked ? 'true' : null,
       },
       h('span', { class: 'g' }, it.k),
@@ -409,7 +411,7 @@ function renderCard(arrive: boolean): void {
         class: `ccard ${rc} ${it.met ? 'met' : ''} ${it.locked ? 'locked' : ''}`,
         type: 'button',
         role: 'listitem',
-        'aria-label': `${it.k}, ${it.gloss}. ${it.label}.${it.met ? '' : ' New.'}${it.locked ? ' Waits for another day.' : ''}`,
+        'aria-label': `${it.k}, ${it.gloss}. ${it.label}.${it.met ? '' : ' New.'}${it.locked ? ` We'll visit this later.` : ''}`,
       },
       h('span', { class: 'g' }, it.k),
       h('span', { class: 'gl' }, it.gloss),
@@ -483,7 +485,7 @@ function setCardStatus(t: string | Node): void {
 function explainCard(it: RingItem): void {
   const frag = document.createDocumentFragment();
   frag.append(h('b', {}, `${it.k} `), `${it.gloss}. ${it.note ? it.note.charAt(0).toUpperCase() + it.note.slice(1) + '. ' : ''}`);
-  if (it.locked) frag.append(`Waits for another day: easy to confuse with ${it.lockedBy}, which is new this session.`);
+  if (it.locked) frag.append(`We'll visit this later. It is easy to confuse with ${it.lockedBy}, which is new this session.`);
   else if (!it.met) frag.append('New to you.');
   setCardStatus(frag);
 }
@@ -516,7 +518,7 @@ function render(arrive: boolean): void {
   const r = payload.ring;
   const total = r.counts['phonetic-series'] + r.counts['shares-part'] + r.counts['built-on'];
   defaultStatus = total
-    ? `${r.items.length} of ${total} neighbors${r.relation === 'all' ? '' : ` by “${REL_NAME[r.relation].toLowerCase()}”`}. Kanji you know come first. Pick one to move there${r.lockedCount ? `; ${r.lockedCount} that are easy to confuse with a new kanji wait for another day` : ''}.`
+    ? `${r.items.length} of ${total} neighbors${r.relation === 'all' ? '' : ` by “${REL_NAME[r.relation].toLowerCase()}”`}. Kanji you know come first. Pick one to move there${r.lockedCount ? `; we'll visit the ${r.lockedCount} that are easy to confuse with a new kanji later` : ''}.`
     : `${payload.hub.c} has no neighbors in this set.`;
   setStatus(defaultStatus);
 }
