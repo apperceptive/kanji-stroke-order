@@ -375,6 +375,7 @@ function renderHubFace(): void {
 
 function renderCard(arrive: boolean): void {
   const hb = payload.hub;
+  $('carousel').classList.remove('quiz');
   const hub = $('hub');
   if (arrive) {
     hub.classList.remove('pop');
@@ -415,7 +416,50 @@ function renderCard(arrive: boolean): void {
   setCardStatus(total ? `${items.length} of ${total} related kanji. Kanji you know come first; tap one to make it the center.` : `${hb.c} has no related kanji in this set.`);
   fill($('cActions'),
     h('button', { type: 'button', class: 'solid', onclick: () => expand().catch(showError) }, 'Expand'),
-    h('button', { type: 'button', onclick: () => expand().then(() => startQuiz('form')).catch(showError) }, 'Quiz me'),
+    h('button', { type: 'button', onclick: () => startQuiz('form').catch(showError) }, 'Quiz me'),
+  );
+}
+
+/** The quiz inside the compact card: the question, four options in two rows, and the verdict beneath. */
+function renderCardQuiz(): void {
+  const qz = quiz!;
+  const v = qz.verdict;
+  renderHubFace();
+  $('cKanji').textContent = '';
+  $('cGloss').textContent = qz.q.prompt;
+  $('cMeta').textContent = v ? '' : 'Wrong answers are drawn only from kanji you know.';
+  $('cParts').textContent = '';
+  $('carousel').classList.add('quiz');
+  fill(
+    $('carousel'),
+    ...qz.q.options.map((o) => {
+      const info = v?.options.find((x) => x.id === o.id);
+      const rel = info?.relation ?? 'answer';
+      const rc = info ? (info.correct ? 'built' : cls(rel)) : '';
+      const b = h(
+        'button',
+        { class: `ccard opt ${rc} ${info ? (info.correct ? 'right' : o.id === v!.chosenId ? 'wrong' : '') : ''}`, type: 'button', disabled: !!v || busy, role: 'listitem', 'aria-label': o.text },
+        h('span', { class: `g ${qz.q.kind === 'sound' ? 'rd' : ''}` }, o.text),
+        info ? h('span', { class: 'pill' }, info.correct ? 'the answer' : optionLabel(info)) : null,
+      );
+      b.addEventListener('click', () => answer(o.id).catch(showError));
+      return b;
+    }),
+  );
+  $<HTMLButtonElement>('cMore').hidden = true;
+  if (!v) setCardStatus('Choose one.');
+  else if (v.correct) setCardStatus(qz.q.kind === 'form' ? `Right. ${payload.hub.c} means “${payload.hub.gloss}”.` : `Right. ${payload.hub.c} is read ${v.answerText}.`);
+  else {
+    const d = v.diagnosis!;
+    const frag = document.createDocumentFragment();
+    frag.append(h('b', {}, 'Not quite. '), h('span', { class: `cause ${cls(d.relation)}` }, causeName(d)), ' ', d.fact);
+    setCardStatus(frag);
+  }
+  const other = qz.q.kind === 'form' ? 'sound' : 'form';
+  fill(
+    $('cActions'),
+    v ? h('button', { type: 'button', class: 'solid', onclick: () => startQuiz(other).catch(showError) }, other === 'sound' ? 'Ask how it is read' : 'Ask which kanji') : null,
+    h('button', { type: 'button', onclick: () => { quiz = null; load(payload.hub.c).catch(showError); } }, 'Back to card'),
   );
 }
 
@@ -434,7 +478,8 @@ function explainCard(it: RingItem): void {
 function render(arrive: boolean): void {
   applyLayout();
   if (!isFull()) {
-    renderCard(arrive);
+    if (quiz) renderCardQuiz();
+    else renderCard(arrive);
     return;
   }
   $('demo').textContent = payload.demo ? `Demo learner · ${met.size} kanji known` : `${met.size} kanji known`;
@@ -523,8 +568,7 @@ async function answer(id: string): Promise<void> {
       met.add(payload.hub.c);
       introduced.delete(payload.hub.c);
     }
-    renderHubFace();
-    renderQuiz();
+    render(false);
     $('demo').textContent = payload.demo ? `Demo learner · ${met.size} kanji known` : `${met.size} kanji known`;
     tellModel(`Quiz on ${payload.hub.c}: the learner chose ${v.options.find((o) => o.id === id)?.text} and was ${v.correct ? 'right' : `wrong. ${v.diagnosis?.fact ?? ''}`}`);
   } finally {

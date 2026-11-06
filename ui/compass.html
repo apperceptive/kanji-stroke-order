@@ -111,6 +111,14 @@ body[data-layout=card] .hub .q.glyph{font-size:60cqw}
 .carousel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;padding:6px 0 2px}
 @container (min-width:520px){.carousel{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @container (max-width:259px){.carousel{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ccard.opt{padding:10px 4px;min-height:74px;align-content:center}
+.ccard.opt .g.rd{font-size:24px}
+.ccard.opt:disabled{opacity:1;cursor:default}
+.ccard.opt:disabled:not(.right):not(.wrong){opacity:.75}
+.ccard.right{border-color:var(--built);box-shadow:0 0 0 3px rgba(74,124,89,.28)}
+.ccard.wrong{border-color:var(--brick);box-shadow:0 0 0 3px rgba(152,52,44,.25)}
+#carousel.quiz{grid-template-columns:repeat(2,minmax(0,1fr))}
+.status.small .cause{font-size:11px;padding:0 7px;vertical-align:1px}
 .cstatusrow{display:flex;gap:8px;align-items:center}
 .cstatusrow .status{flex:1;min-width:0}
 .linkbtn{flex:none;min-height:36px;padding:4px 10px;font-size:13px}
