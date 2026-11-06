@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MCP Apps dev host</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#2b2b30;color:#ddd}
+header{padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#1f1f23;font-size:13px}
+input,select,button{font:inherit;padding:4px 6px}
+#frameBox{max-width:760px;margin:16px auto;background:#3a3a40;border-radius:12px;padding:12px}
+iframe{width:100%;border:0;display:block;background:transparent;height:300px}
+pre{font-size:11px;color:#9a9;max-height:180px;overflow:auto;margin:8px 12px}
+</style>
+</head>
+<body>
+<header>
+  <b>MCP Apps dev host</b>
+  tool <select id="tool"><option>open_compass</option><option>show_strokes</option></select>
+  args <input id="args" size="40" value='{"hub":"時"}'>
+  <select id="theme"><option>light</option><option>dark</option></select>
+  <button id="go">Run</button>
+  <span id="info"></span>
+</header>
+<div id="frameBox"><iframe id="f" sandbox="allow-scripts allow-same-origin"></iframe></div>
+<pre id="log"></pre>
+<script>
+// A minimal host for the MCP Apps protocol (spec 2026-01-26): enough to run an app against this server
+// during development. It is not a substitute for a real host; see the PR for what rendered where.
+const log = (...a) => { const l = document.getElementById('log'); l.textContent += a.map((x) => typeof x === 'string' ? x : JSON.stringify(x).slice(0, 300)).join(' ') + '\n'; l.scrollTop = l.scrollHeight; };
+let rid = 1;
+async function rpc(method, params) {
+  const r = await fetch('/mcp', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' }, body: JSON.stringify({ jsonrpc: '2.0', id: rid++, method, params }) });
+  const t = await r.text();
+  const body = t.startsWith('event:') || t.startsWith('data:') ? t.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim()).pop() : t;
+  const j = JSON.parse(body);
+  if (j.error) throw new Error(j.error.message);
+  return j.result;
+}
+const f = document.getElementById('f');
+const q = new URLSearchParams(location.search);
+if (q.get('tool')) document.getElementById('tool').value = q.get('tool');
+if (q.get('args')) document.getElementById('args').value = q.get('args');
+if (q.get('theme')) document.getElementById('theme').value = q.get('theme');
+const post = (m) => f.contentWindow.postMessage({ jsonrpc: '2.0', ...m }, '*');
+let pending = null;
+
+window.addEventListener('message', async (e) => {
+  if (e.source !== f.contentWindow) return;
+  const m = e.data;
+  if (!m || m.jsonrpc !== '2.0') return;
+  log('app→host', m.method ?? 'response', m.params ? JSON.stringify(m.params).slice(0, 120) : '');
+  if (m.method === 'ui/initialize') {
+    post({ id: m.id, result: { protocolVersion: '2026-01-26', hostInfo: { name: 'dev-host', version: '0' }, hostCapabilities: { serverTools: {}, openLinks: {}, logging: {}, updateModelContext: { text: {} }, message: { text: {} } }, hostContext: { theme: document.getElementById('theme').value, displayMode: 'inline', availableDisplayModes: ['inline', 'fullscreen'], platform: 'web' } } });
+  } else if (m.method === 'ui/notifications/initialized') {
+    if (pending) { post({ method: 'ui/notifications/tool-input', params: { arguments: pending.args } }); post({ method: 'ui/notifications/tool-result', params: pending.result }); }
+  } else if (m.method === 'tools/call') {
+    try { post({ id: m.id, result: await rpc('tools/call', m.params) }); } catch (err) { post({ id: m.id, error: { code: -32000, message: String(err.message) } }); }
+  } else if (m.method === 'ui/notifications/size-changed') {
+    if (m.params?.height && !window.fixedHeight) f.style.height = m.params.height + 'px'; // set window.fixedHeight to test a host-sized frame such as fullscreen
+  } else if (m.method === 'ui/request-display-mode') {
+    post({ id: m.id, result: { mode: m.params.mode } });
+    post({ method: 'ui/notifications/host-context-changed', params: { displayMode: m.params.mode } });
+    f.style.height = m.params.mode === 'fullscreen' ? '900px' : '';
+  } else if (m.id != null && m.method) {
+    post({ id: m.id, result: {} });
+  }
+});
+
+async function run() {
+  document.getElementById('log').textContent = '';
+  const name = document.getElementById('tool').value;
+  const args = JSON.parse(document.getElementById('args').value);
+  const tools = (await rpc('tools/list', {})).tools;
+  const tool = tools.find((t) => t.name === name);
+  const uri = tool?._meta?.ui?.resourceUri ?? tool?._meta?.['ui/resourceUri'];
+  const result = await rpc('tools/call', { name, arguments: args });
+  const res = await rpc('resources/read', { uri });
+  log('tool text:', result.content?.[0]?.text?.slice(0, 200));
+  pending = { args, result };
+  f.srcdoc = `<script>addEventListener('error',e=>parent.postMessage({jsonrpc:'2.0',method:'dev/error',params:{message:e.message,line:e.lineno,col:e.colno}},'*'));addEventListener('unhandledrejection',e=>parent.postMessage({jsonrpc:'2.0',method:'dev/error',params:{message:String(e.reason&&e.reason.stack||e.reason)}},'*'))<\/script>` + res.contents[0].text;
+  document.getElementById('info').textContent = `${name} → ${uri}`;
+}
+document.getElementById('go').onclick = () => run().catch((e) => log('ERROR', e.message));
+run().catch((e) => log('ERROR', e.message));
+</script>
+</body>
+</html>
