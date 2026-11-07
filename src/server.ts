@@ -11,7 +11,7 @@ export function createServer(): McpServer {
   }, {
     // Some hosts add this to the model's standing context. The tool descriptions carry the same rules, because not all do.
     instructions:
-      'Nihongoism teaches kanji with interactive apps. For "draw", "write" or "stroke order" requests use show_strokes; to explore how kanji relate, or to quiz or test, use open_compass. If the learner names an English word, choose its kanji yourself. The apps already show the character, meaning, readings and relationships, so after a tool call reply with one short sentence and do not repeat what is on screen.',
+      'Nihongoism teaches kanji with interactive apps. For "draw", "write" or "stroke order" requests use show_strokes, not image generation; to explore how kanji relate, or to quiz or test, use open_compass. If the learner names an English word, choose its kanji yourself. The apps already show the character, meaning, readings and relationships, so after a tool call reply with one short sentence and do not repeat what is on screen.',
   });
 
   registerStrokeOrderTool(server);
