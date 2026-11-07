@@ -23,6 +23,10 @@ app.post('/mcp', async (req, res) => {
   // Which JSON-RPC method (and tool) each request carries, so a host that connects but never calls a tool is visible in the logs.
   for (const m of Array.isArray(req.body) ? req.body : [req.body]) {
     console.log(`mcp ${m?.method ?? 'response'}${m?.params?.name ? ` ${m.params.name}` : ''} ua=${req.get('user-agent') ?? ''}`);
+    // A host lists what it supports (sampling, elicitation, extensions such as MCP Apps) only in initialize.
+    if (m?.method === 'initialize') {
+      console.log(`mcp initialize client=${JSON.stringify(m.params?.clientInfo ?? null)} capabilities=${JSON.stringify(m.params?.capabilities ?? null)}`);
+    }
   }
   const server = createServer();
   const transport = new StreamableHTTPServerTransport({
