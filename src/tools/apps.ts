@@ -119,7 +119,7 @@ export function registerAppTools(server: McpServer): void {
     {
       title: 'Stroke player',
       description:
-        "Shows how a Japanese character is written: a brush draws it stroke by stroke on screen, from exact stroke data. Use this, never image generation, to draw a kanji: generated images get the strokes wrong and take longer. Use it whenever someone wants to see, draw, write, learn or practice a kanji: 'draw the Japanese character for cat', 'how do I write 猫', 'stroke order for water', 'show me 愛 in brush strokes'. Given an English word, pick its kanji yourself (cat → 猫); for a word of several kanji, call once per kanji. The app already shows the character, its meaning, readings, stroke count and the animation. After the call, reply with one short sentence at most. Do not repeat the meaning, readings, stroke count or the strokes, and do not explain how to draw it.",
+        "Kanji stroke order player: shows how a Japanese character is written, a brush drawing it stroke by stroke on screen from exact stroke data. Use this, never image generation, to draw a kanji: generated images get the strokes wrong and take longer. Use it whenever someone wants to see, draw, write, learn or practice a kanji: 'draw the Japanese character for cat', 'how do I write 猫', 'stroke order for water', 'show me 愛 in brush strokes'. Given an English word, pick its kanji yourself (cat → 猫); for a word of several kanji, call once per kanji. The app already shows the character, its meaning, readings, stroke count and the animation. After the call, reply with one short sentence at most. Do not repeat the meaning, readings, stroke count or the strokes, and do not explain how to draw it.",
       inputSchema: { character: kanjiChar },
       _meta: { ui: { resourceUri: STROKE_PLAYER_URI } },
     },
@@ -140,7 +140,7 @@ export function registerAppTools(server: McpServer): void {
     {
       title: 'Kanji compass',
       description:
-        "Opens an interactive map of how a kanji relates to others, with built-in quizzes. Use it when someone wants to explore, compare, quiz or be tested on kanji: 'what's related to 時', 'which kanji look or sound like 寺', 'help me tell 持 and 待 apart', 'quiz me on 猫', 'test me on kanji'. Given an English word, pick its kanji yourself. The app already shows the kanji, its meaning and readings, the related kanji with how each one is related, and the quizzes (how is it read; which kanji is it). After the call, reply with one short sentence at most. Do not list the related kanji or their relationships, and do not quiz the learner yourself: the app does that. Answer follow-up questions only from the facts in the result.",
+        "Kanji compass: an interactive map of how a kanji relates to others, with built-in quizzes. Use it when someone says compass or wants to explore, compare, quiz or be tested on kanji: 'what's related to 時', 'which kanji look or sound like 寺', 'help me tell 持 and 待 apart', 'quiz me on 猫', 'test me on kanji'. Given an English word, pick its kanji yourself. The app already shows the kanji, its meaning and readings, the related kanji with how each one is related, and the quizzes (how is it read; which kanji is it). After the call, reply with one short sentence at most. Do not list the related kanji or their relationships, and do not quiz the learner yourself: the app does that. Answer follow-up questions only from the facts in the result.",
       inputSchema: { hub: kanjiChar, ...stateArgs },
       _meta: { ui: { resourceUri: COMPASS_URI } },
     },
