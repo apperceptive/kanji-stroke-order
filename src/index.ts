@@ -20,6 +20,10 @@ if (process.env.DEV_HOST === '1') {
 }
 
 app.post('/mcp', async (req, res) => {
+  // Which JSON-RPC method (and tool) each request carries, so a host that connects but never calls a tool is visible in the logs.
+  for (const m of Array.isArray(req.body) ? req.body : [req.body]) {
+    console.log(`mcp ${m?.method ?? 'response'}${m?.params?.name ? ` ${m.params.name}` : ''} ua=${req.get('user-agent') ?? ''}`);
+  }
   const server = createServer();
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
