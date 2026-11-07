@@ -21,7 +21,7 @@ const COMPASS_URI = 'ui://nihongoism/compass.html';
  */
 export const DEMO_MET = [...'日月火水木金土一人大口時持寺待'];
 
-const kanjiChar = z.string().length(1).describe("A single kanji, e.g. '時'");
+const kanjiChar = z.string().length(1).describe("A single kanji, e.g. '猫'. If the learner gave an English word or a meaning, choose its most common kanji yourself (cat → 猫).");
 const metArg = z
   .array(z.string().length(1))
   .max(300)
@@ -119,7 +119,7 @@ export function registerAppTools(server: McpServer): void {
     {
       title: 'Stroke player',
       description:
-        'Shows one kanji as an interactive brush stroke player. The learner plays, pauses, steps through and replays the strokes at their own pace. Use it when someone asks how a kanji is written or what its stroke order is. The strokes come from KanjiVG and are drawn by the app; do not describe coordinates.',
+        "Shows how a Japanese character is written: a brush draws it stroke by stroke on screen. Use it whenever someone wants to see, draw, write, learn or practice a kanji: 'draw the Japanese character for cat', 'how do I write 猫', 'stroke order for water', 'show me 愛 in brush strokes'. Given an English word, pick its kanji yourself (cat → 猫); for a word of several kanji, call once per kanji. The app already shows the character, its meaning, readings, stroke count and the animation. After the call, reply with one short sentence at most. Do not repeat the meaning, readings, stroke count or the strokes, and do not explain how to draw it.",
       inputSchema: { character: kanjiChar },
       _meta: { ui: { resourceUri: STROKE_PLAYER_URI } },
     },
@@ -128,7 +128,7 @@ export function registerAppTools(server: McpServer): void {
       if (!strokes) return text(`No stroke data for "${character}".`, true);
       const n = getNode(character);
       return {
-        content: [{ type: 'text', text: `Stroke order for ${character}${n ? ` (${gloss(n)}; ${readings(n)})` : ''}, ${strokes.length} strokes in writing order: ${strokes.map((st, i) => `${i + 1} ${strokeName(st[0])}`).join(', ')}. Hosts that support MCP Apps also show an interactive player the learner controls; if none is visible, say so and give the order from this list.` }],
+        content: [{ type: 'text', text: `The stroke player for ${character}${n ? ` (${gloss(n)}; ${readings(n)})` : ''} is on screen, drawing its ${strokes.length} strokes. It already shows everything: reply with one short sentence and do not repeat any of it. Only if the learner says no player appeared, give the writing order: ${strokes.map((st, i) => `${i + 1} ${strokeName(st[0])}`).join(', ')}.` }],
         structuredContent: { character, gloss: n ? gloss(n) : '', on: n?.on ?? [], kun: n?.kun ?? [], reading: n ? readings(n) : '', strokes },
       };
     },
@@ -140,7 +140,7 @@ export function registerAppTools(server: McpServer): void {
     {
       title: 'Kanji compass',
       description:
-        'Opens the kanji compass on a hub kanji: the hub at the center and a ring of at most six related kanji around it, each slot labeled with its relation (built-on: the neighbor contains the hub; shares-part: they share a visible piece; phonetic-series: a shared sound part and a shared on-reading). The learner moves between kanji by choosing a neighbor. Use it to look around a kanji, or to show the 寺 family from 時. Relations are computed from KanjiVG and reported in the result; explain only what the result states.',
+        "Opens an interactive map of how a kanji relates to others, with built-in quizzes. Use it when someone wants to explore, compare, quiz or be tested on kanji: 'what's related to 時', 'which kanji look or sound like 寺', 'help me tell 持 and 待 apart', 'quiz me on 猫', 'test me on kanji'. Given an English word, pick its kanji yourself. The app already shows the kanji, its meaning and readings, the related kanji with how each one is related, and the quizzes (how is it read; which kanji is it). After the call, reply with one short sentence at most. Do not list the related kanji or their relationships, and do not quiz the learner yourself: the app does that. Answer follow-up questions only from the facts in the result.",
       inputSchema: { hub: kanjiChar, ...stateArgs },
       _meta: { ui: { resourceUri: COMPASS_URI } },
     },
@@ -160,7 +160,7 @@ export function registerAppTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Kanji compass for ${p.hub.c} (${p.hub.gloss}; ${p.hub.reading}). Parts: ${p.hub.parts.map((x) => `${x.shown} (${x.role})`).join(', ') || 'none'}.\nRelated kanji (${p.ring.items.length} of ${total}; hosts that support MCP Apps show these as an interactive compass, otherwise describe them from this list; phonetic-series ${c['phonetic-series']}, shares-part ${c['shares-part']}, built-on ${c['built-on']}):\n${lines.join('\n')}${demo ? '\nNo learner state was passed, so a demo learner who knows 15 kanji is assumed.' : ''}`,
+              text: `The compass for ${p.hub.c} (${p.hub.gloss}; ${p.hub.reading}) is on screen and already shows all of this. Reply with one short sentence and do not repeat it; use the facts below only to answer follow-up questions, or to describe the kanji if the learner says no compass appeared.\nParts: ${p.hub.parts.map((x) => `${x.shown} (${x.role})`).join(', ') || 'none'}.\nRelated kanji (${p.ring.items.length} of ${total}; phonetic-series ${c['phonetic-series']}, shares-part ${c['shares-part']}, built-on ${c['built-on']}):\n${lines.join('\n')}${demo ? '\nNo learner state was passed, so a demo learner who knows 15 kanji is assumed.' : ''}`,
             },
           ],
           structuredContent: p as unknown as Record<string, unknown>,

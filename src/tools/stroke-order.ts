@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { getKanji } from '../data/firestore.js';
 
-const TOOL_DESCRIPTION = `Returns KanjiVG stroke order data for a single kanji character.
+const TOOL_DESCRIPTION = `Raw KanjiVG stroke data (SVG) for a single kanji, for when you need the strokes themselves to draw, color or annotate. If the learner just wants to see how a kanji is written, use show_strokes instead: it draws the character on screen.
 
 Response fields (JSON string):
 - character: The requested character.
