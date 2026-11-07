@@ -115,11 +115,11 @@ export function registerAppTools(server: McpServer): void {
 
   registerAppTool(
     server,
-    'show_strokes',
+    'draw_kanji',
     {
-      title: 'Stroke player',
+      title: 'Draw kanji',
       description:
-        "Kanji stroke order player: shows how a Japanese character is written, a brush drawing it stroke by stroke on screen from exact stroke data. Use this, never image generation, to draw a kanji: generated images get the strokes wrong and take longer. Use it whenever someone wants to see, draw, write, learn or practice a kanji: 'draw the Japanese character for cat', 'how do I write 猫', 'stroke order for water', 'show me 愛 in brush strokes'. Given an English word, pick its kanji yourself (cat → 猫); for a word of several kanji, call once per kanji. The app already shows the character, its meaning, readings, stroke count and the animation. After the call, reply with one short sentence at most. Do not repeat the meaning, readings, stroke count or the strokes, and do not explain how to draw it.",
+        "Draw kanji: a brush draws a Japanese character stroke by stroke on screen from exact stroke data, showing how it is written (the kanji stroke order player). Use this, never image generation, to draw a kanji: generated images get the strokes wrong and take longer. Use it whenever someone wants to see, draw, write, learn or practice a kanji: 'draw the Japanese character for cat', 'how do I write 猫', 'stroke order for water', 'show me 愛 in brush strokes'. Given an English word, pick its kanji yourself (cat → 猫); for a word of several kanji, call once per kanji. The app already shows the character, its meaning, readings, stroke count and the animation. After the call, reply with one short sentence at most. Do not repeat the meaning, readings, stroke count or the strokes, and do not explain how to draw it.",
       inputSchema: { character: kanjiChar },
       _meta: { ui: { resourceUri: STROKE_PLAYER_URI } },
     },
