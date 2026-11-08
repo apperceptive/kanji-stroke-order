@@ -41,9 +41,9 @@ export function registerUnitTools(server: McpServer): void {
     server,
     'show_relations',
     {
-      title: 'Related kanji',
+      title: 'Kanji sound-alikes and look-alikes',
       description:
-        "Related kanji: one kind of relation at a time, listed. Use it when someone asks which kanji sound alike, look alike or are built on another: 'which kanji sound like 時', 'what looks like 持', 'kanji that look like 待', 'what is built on 木', 'sound-alikes of 寺'. Given an English word, pick its kanji yourself. The app lists the related kanji with how each is related and offers the next questions as buttons. After the call, reply with one short sentence at most; do not list the kanji or repeat the relationships. For a whole map to explore, use open_compass instead.",
+        "Kanji sound-alikes and look-alikes: lists the kanji related to a given kanji by sound, by look or by what they are built on, from the real kanji graph (KanjiVG parts and the jōyō readings). Use it, rather than answering from your own memory, whenever someone asks which kanji sound alike, look alike or are built on another, because recalled lists are often incomplete or wrong and this one marks which kanji the learner already knows: 'which kanji sound like 時', 'what other kanji are read じ', 'what looks like 持', 'kanji that look like 待', 'what is built on 木', 'sound-alikes of 寺'. Given an English word, pick its kanji yourself. The app lists the related kanji with how each is related and offers the next questions as buttons. After the call, reply with one short sentence at most; do not list the kanji or repeat the relationships. For a whole map to explore, use open_compass instead.",
       inputSchema: { hub: kanjiChar, relation: relationArg, ...stateArgs },
       _meta: { ui: { resourceUri: RELATIONS_URI } },
     },
@@ -85,9 +85,9 @@ export function registerUnitTools(server: McpServer): void {
     server,
     'start_drill',
     {
-      title: 'Kanji drill',
+      title: 'Kanji quiz',
       description:
-        "Kanji drill: a short run of quick questions on one kanji and the kanji the learner knows around it, asked and graded in the app. Use this, never your own quiz or flashcard feature and never a quiz in text, whenever someone wants to be quizzed, tested or to practice a kanji: 'quiz me on 時', 'test me on kanji', 'practice 猫', 'drill me on these'. Given an English word, pick its kanji yourself. The app asks every question and reports the score at the end; do not ask the questions yourself. After the call, reply with one short sentence at most.",
+        "Kanji quiz: the Nihongoism quiz, a short run of quick graded questions on one kanji and the kanji the learner knows around it, asked and checked in the app, which also tells you the score. Use this, never your own quiz or flashcard feature and never a quiz in text, whenever someone says quiz, test, drill or practice about a kanji or kanji in general: 'quiz me on 時', 'give me a kanji quiz', 'test me on kanji', 'practice 猫', 'drill me on these'. Given an English word, pick its kanji yourself. The app asks every question and reports the score at the end; do not ask the questions yourself. After the call, reply with one short sentence at most.",
       inputSchema: { hub: kanjiChar, length: z.number().int().min(3).max(10).optional().describe('How many questions. Default 5.'), ...stateArgs },
       _meta: { ui: { resourceUri: DRILL_URI } },
     },
