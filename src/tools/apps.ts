@@ -192,15 +192,25 @@ export function registerAppTools(server: McpServer): void {
     },
   );
 
-  const kind = z.enum(['form', 'sound']);
+  registerQuizTools(server, 'compass', COMPASS_URI);
+}
+
+const questionKind = z.enum(['form', 'sound']);
+
+/**
+ * The app-only question and answer tools an app calls to quiz the learner. Each app that quizzes registers its
+ * own pair (`<prefix>_question`, `<prefix>_answer`) bound to its own resource, because a host may only let an app
+ * call the tools that belong to it. Answers stay on the server until an answer is submitted.
+ */
+export function registerQuizTools(server: McpServer, prefix: string, resourceUri: string): void {
   registerAppTool(
     server,
-    'compass_question',
+    `${prefix}_question`,
     {
-      title: 'Compass: ask a question',
+      title: `${prefix}: ask a question`,
       description: "App only. A four-option question about a kanji. The answer and each option's relation stay on the server until an answer is submitted.",
-      inputSchema: { target: kanjiChar, kind, met: metArg },
-      _meta: { ui: { resourceUri: COMPASS_URI, visibility: ['app'] } },
+      inputSchema: { target: kanjiChar, kind: questionKind, met: metArg },
+      _meta: { ui: { resourceUri, visibility: ['app'] } },
     },
     async (a) => {
       try {
@@ -213,12 +223,12 @@ export function registerAppTools(server: McpServer): void {
   );
   registerAppTool(
     server,
-    'compass_answer',
+    `${prefix}_answer`,
     {
-      title: 'Compass: grade an answer',
+      title: `${prefix}: grade an answer`,
       description: 'App only. Grades a chosen option against the question the server rebuilds, and names the relation behind a wrong choice.',
-      inputSchema: { target: kanjiChar, kind, met: metArg, chosen: z.string().regex(/^o[0-3]$/) },
-      _meta: { ui: { resourceUri: COMPASS_URI, visibility: ['app'] } },
+      inputSchema: { target: kanjiChar, kind: questionKind, met: metArg, chosen: z.string().regex(/^o[0-3]$/) },
+      _meta: { ui: { resourceUri, visibility: ['app'] } },
     },
     async (a) => {
       try {
