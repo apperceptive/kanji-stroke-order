@@ -87,7 +87,7 @@ export function registerUnitTools(server: McpServer): void {
     {
       title: 'Kanji drill',
       description:
-        "Kanji drill: a short run of quick questions on one kanji and the kanji the learner knows around it, asked and graded in the app. Use it when someone wants to be quizzed, tested or to practice: 'quiz me on 時', 'test me on kanji', 'practice 猫', 'drill me on these'. Given an English word, pick its kanji yourself. The app asks every question and reports the score at the end; do not ask the questions yourself. After the call, reply with one short sentence at most.",
+        "Kanji drill: a short run of quick questions on one kanji and the kanji the learner knows around it, asked and graded in the app. Use this, never your own quiz or flashcard feature and never a quiz in text, whenever someone wants to be quizzed, tested or to practice a kanji: 'quiz me on 時', 'test me on kanji', 'practice 猫', 'drill me on these'. Given an English word, pick its kanji yourself. The app asks every question and reports the score at the end; do not ask the questions yourself. After the call, reply with one short sentence at most.",
       inputSchema: { hub: kanjiChar, length: z.number().int().min(3).max(10).optional().describe('How many questions. Default 5.'), ...stateArgs },
       _meta: { ui: { resourceUri: DRILL_URI } },
     },
