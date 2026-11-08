@@ -81,3 +81,44 @@ export function applySafeArea(app: App): void {
   const root = document.documentElement.style;
   for (const side of ['top', 'right', 'bottom', 'left'] as const) root.setProperty(`--sa-${side}`, `${i?.[side] ?? 0}px`);
 }
+
+/** Tell the host's model what the learner just did, without a model turn: it reads the note when the learner next writes. Hosts that do not support it ignore the call. */
+export function tellModel(app: App, text: string): void {
+  app.updateModelContext({ content: [{ type: 'text', text }] }).catch(() => {});
+}
+
+export interface Suggestion {
+  label: string;
+  utterance: string;
+}
+
+/**
+ * Buttons that say the next thing for the learner: a press posts the utterance to the chat as the learner's own
+ * message, so the model answers it and routes it as if it had been typed. Reports how long the host took to accept
+ * the message, which is not the time to the reply. `status` shows the outcome.
+ */
+export function wireSuggestions(app: App, box: HTMLElement, items: Suggestion[], status: (t: string) => void): void {
+  box.replaceChildren(
+    ...items.map((s) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'say';
+      b.textContent = s.label;
+      b.title = s.utterance;
+      b.addEventListener('click', () => {
+        const t0 = performance.now();
+        b.disabled = true;
+        status('Sending to the chat…');
+        const failed = () => {
+          b.disabled = false;
+          status('This host does not let the app send a message to the chat.');
+        };
+        app
+          .sendMessage({ role: 'user', content: [{ type: 'text', text: s.utterance }] })
+          .then((r) => (r.isError ? failed() : status(`Sent to the chat; the host accepted it in ${Math.round(performance.now() - t0)} ms.`)))
+          .catch(failed);
+      });
+      return b;
+    }),
+  );
+}

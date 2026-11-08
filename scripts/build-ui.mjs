@@ -13,7 +13,7 @@ import { build } from 'esbuild';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ui = path.join(root, 'ui');
 const out = path.join(root, 'ui-dist');
-const APPS = ['stroke-player', 'compass'];
+const APPS = ['stroke-player', 'compass', 'relations', 'drill'];
 
 // The engine declares the stroke data S and CFG before it, builds the strokes at `const strokes=S.map(build)`,
 // and everything after that line is the sample page's player. Keep the part before it.

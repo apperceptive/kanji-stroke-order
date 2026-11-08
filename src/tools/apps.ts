@@ -4,6 +4,7 @@ import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from '@model
 import { getNode, gloss, readings } from '../graph/graph.js';
 import { buildRing, centerParts, RELATIONS, type CompassState, type Ring } from '../graph/relations.js';
 import { DEMO_MET, kanjiChar, registerQuizTools, stateArgs, stateOf, text, uiHtml } from './app-common.js';
+import { registerUnitTools } from './units.js';
 import { getStrokes, type Stroke } from '../data/strokes.js';
 import { strokeName } from '../graph/stroke-names.js';
 
@@ -109,7 +110,7 @@ export function registerAppTools(server: McpServer): void {
     {
       title: 'Kanji compass',
       description:
-        "Kanji compass: an interactive map of how a kanji relates to others, with built-in quizzes. Use it when someone says compass or wants to explore, compare, quiz or be tested on kanji: 'what's related to 時', 'kanji around 寺', 'look around 時', 'which kanji look or sound like 寺', 'help me tell 持 and 待 apart', 'quiz me on 猫', 'test me on kanji'. Given an English word, pick its kanji yourself. The app already shows the kanji, its meaning and readings, the related kanji with how each one is related, and the quizzes (how is it read; which kanji is it). After the call, reply with one short sentence at most. Do not list the related kanji or their relationships, and do not quiz the learner yourself: the app does that. Answer follow-up questions only from the facts in the result.",
+        "Kanji compass: an interactive map of how a kanji relates to others, with built-in quizzes. Use it when someone says compass or wants to explore or compare kanji on a map: 'what's related to 時', 'kanji around 寺', 'look around 時', 'help me tell 持 and 待 apart'. For a plain list of the sound-alikes or look-alikes of a kanji use show_relations, and to be quizzed or tested use start_drill. Given an English word, pick its kanji yourself. The app already shows the kanji, its meaning and readings, the related kanji with how each one is related, and the quizzes (how is it read; which kanji is it). After the call, reply with one short sentence at most. Do not list the related kanji or their relationships, and do not quiz the learner yourself: the app does that. Answer follow-up questions only from the facts in the result.",
       inputSchema: { hub: kanjiChar, ...stateArgs },
       _meta: { ui: { resourceUri: COMPASS_URI } },
     },
@@ -162,4 +163,5 @@ export function registerAppTools(server: McpServer): void {
   );
 
   registerQuizTools(server, 'compass', COMPASS_URI);
+  registerUnitTools(server);
 }

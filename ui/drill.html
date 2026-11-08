@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nihongoism kanji drill</title>
+<style>
+{{STYLE}}
+.stack{display:grid;gap:12px}
+.prompt{font-family:var(--heading);font-weight:700;font-size:17px;margin:0}
+.target{font-family:var(--kanji);font-size:64px;line-height:1.1;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{font-family:var(--kanji);font-weight:500;font-size:28px;min-height:68px;color:var(--text);border-color:var(--line);background:#fff}
+.opt:hover:not(:disabled){background:#f6e3de;color:var(--text)}
+.opt:disabled{opacity:1;cursor:default}
+.opt.right{border-color:var(--built);background:#f1f7f2}
+.opt.wrong{border-color:var(--brick);background:#fbefec}
+.fb{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:14px;display:grid;gap:4px}
+.fb.ok{border-color:var(--built);background:#f1f7f2}
+.fb.no{border-color:var(--brick);background:#fbefec}
+.fb b{font-family:var(--heading);font-size:16px}
+.score{font-family:var(--heading);font-size:22px;margin:0}
+.missed{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+.missed .jp{font-size:18px}
+</style>
+</head>
+<body>
+<main class="card" aria-label="Kanji drill">
+  <header class="top">
+    <h1 class="title">Drill <span class="jp" id="kj" style="font-size:20px"></span> <span id="gl" class="sub"></span></h1>
+    <div class="right"><span class="sub" id="progress"></span></div>
+  </header>
+  <section id="ask" class="stack" hidden>
+    <p class="prompt" id="prompt"></p>
+    <div class="target" id="target" hidden></div>
+    <div class="grid" id="opts"></div>
+    <div class="fb" id="fb" hidden></div>
+    <div class="row"><button id="next" type="button" class="solid" hidden>Next</button></div>
+  </section>
+  <section id="done" class="stack" hidden>
+    <h2 class="score" id="score"></h2>
+    <ul class="missed" id="missed"></ul>
+    <div class="says" id="says"></div>
+  </section>
+  <p class="note" id="note" aria-live="polite"></p>
+  <p class="err" id="err" hidden></p>
+{{FOOTER}}
+</main>
+<script>
+{{SCRIPT}}
+</script>
+</body>
+</html>
