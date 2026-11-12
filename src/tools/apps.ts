@@ -14,6 +14,8 @@ import { strokeName } from '../graph/stroke-names.js';
  */
 const STROKE_PLAYER_URI = 'ui://nihongoism/stroke-player.html';
 const COMPASS_URI = 'ui://nihongoism/compass.html';
+/** Where the compass opens when a host starts it with no arguments, as an entry point does. */
+const DEFAULT_HUB = '時';
 
 export interface HubPayload {
   hub: {
@@ -111,15 +113,18 @@ export function registerAppTools(server: McpServer): void {
       title: 'Kanji compass',
       description:
         "Kanji compass: an interactive map of how a kanji relates to others, with built-in quizzes. Use it only when someone says compass or map, or wants to explore, wander or compare kanji on a map: 'open the compass on 時', 'what's related to 時', 'kanji around 寺', 'help me tell 持 and 待 apart'. Never for a list of sound-alikes or look-alikes (use show_relations) and never for a quiz or test (use start_drill). Given an English word, pick its kanji yourself. The app already shows the kanji, its meaning and readings, the related kanji with how each one is related, and the quizzes (how is it read; which kanji is it). After the call, reply with one short sentence at most. Do not list the related kanji or their relationships, and do not quiz the learner yourself: the app does that. Answer follow-up questions only from the facts in the result.",
-      inputSchema: { hub: kanjiChar, ...stateArgs },
-      _meta: { ui: { resourceUri: COMPASS_URI } },
+      inputSchema: { hub: kanjiChar.optional().describe(`${kanjiChar.description} Leave it out only when the learner asked for the compass without naming a kanji.`), ...stateArgs },
+      // The entry point lets a host list the compass as an app the learner opens without asking the model
+      // (the key is OpenAI's; Claude reads it too). A host opens it that way with no arguments.
+      _meta: { ui: { resourceUri: COMPASS_URI }, 'openai/ui': { entrypoints: [{ type: 'global' }] } },
     },
     async (a) => {
       const { state, demo } = stateOf(a);
+      const hub = a.hub ?? DEFAULT_HUB;
       // Opening on an unmet kanji introduces it, so what is confusable with it waits (P-025 rule 1).
-      if (!state.met.includes(a.hub) && !state.introduced.includes(a.hub)) state.introduced = [...state.introduced, a.hub];
+      if (!state.met.includes(hub) && !state.introduced.includes(hub)) state.introduced = [...state.introduced, hub];
       try {
-        const p = await hubPayload(a.hub, state, 'all', 0, demo);
+        const p = await hubPayload(hub, state, 'all', 0, demo);
         const lines = p.ring.items.map(
           (i) =>
             `${i.k} (${i.gloss}; ${i.reading || 'no on-reading'}) · ${i.label}${i.note ? ` · ${i.note}` : ''}${i.met ? '' : ' · new'}${i.locked ? ` · for later: easy to confuse with ${i.lockedBy}, new this session` : ''}`,
