@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getNode, readings, SEED } from '../src/graph/graph.js';
+import { getNode, loadGraph, readings, SEED } from '../src/graph/graph.js';
 import { buildRing, builtOn, confusable, devoice, phoneticSeries, sharesPart, RING_CAP } from '../src/graph/relations.js';
 import { buildQuestion, judge, publicQuestion } from '../src/graph/questions.js';
 
@@ -141,4 +141,12 @@ test('kun readings travel with the on-readings, labeled, and uncommon ones stay 
   assert.equal(readings(hub('分'), 2), 'on ブン・フン・ブ · kun わ.ける・わ.かれる');
   // a kanji with no kun reading just has the on line
   assert.ok(!readings(hub('寺')).includes('kun') || hub('寺').kun.length > 0);
+});
+
+test('no meaning carries the (kokuji) label; the flag marks at least the nine tagged jōyō kokuji', () => {
+  const nodes = Object.values(loadGraph().kanji);
+  assert.deepEqual(nodes.filter((n) => n.m.some((m) => /kokuji/i.test(m))).map((n) => n.c), []);
+  const flagged = new Set(nodes.filter((n) => n.kokuji).map((n) => n.c));
+  for (const k of '働込匂畑腺峠枠塀栃') assert.ok(flagged.has(k), k); // more may be flagged once the source carries a kokuji field
+  assert.equal(getNode('働')!.m.join(', '), 'work');
 });

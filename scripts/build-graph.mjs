@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { readMeanings } from './meanings.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
@@ -128,7 +129,7 @@ if (useFirestore) {
   const db = admin.firestore();
   const refs = joyo.map((k) => db.collection('kanji').doc(k));
   for (let i = 0; i < refs.length; i += 300) {
-    const snaps = await db.getAll(...refs.slice(i, i + 300), { fieldMask: ['meaning', 'grade', 'jlpt', 'freq', 'stroke_count'] });
+    const snaps = await db.getAll(...refs.slice(i, i + 300), { fieldMask: ['meaning', 'kokuji', 'grade', 'jlpt', 'freq', 'stroke_count'] });
     for (const s of snaps) if (s.exists) meta.set(s.id, s.data());
   }
   console.log(`Firestore: ${meta.size} of ${joyo.length} kanji have metadata`);
@@ -155,7 +156,7 @@ for (const k of joyo) {
     g: m?.grade ?? null,
     f: m?.freq ?? null,
     sc: m?.stroke_count ?? countStrokes(tree),
-    m: m?.meaning?.english?.slice(0, 3) ?? [],
+    ...readMeanings(m),
     on: (on.get(k) ?? []).map((x) => x.r),
     kun: kun.get(k) ?? [],
     parts: parts.map(({ e, shown, pos, rad, ph, n }) => {

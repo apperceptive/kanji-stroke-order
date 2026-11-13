@@ -23,8 +23,10 @@ export interface KanjiNode {
   f: number | null;
   /** Stroke count. */
   sc: number;
-  /** English meanings. */
+  /** English meanings, without KANJIDIC's `(kokuji)` label. */
   m: string[];
+  /** A kokuji: a kanji made in Japan. */
+  kokuji: boolean;
   /** On-readings, katakana. */
   on: string[];
   /** Common kun readings, hiragana, with a dot before the okurigana (わ.ける). */
