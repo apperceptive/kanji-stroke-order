@@ -29,3 +29,7 @@ test("a kokuji field decides the flag, and the tag is still dropped", () => {
   assert.deepEqual(readMeanings(doc(['work'], true)), { m: ['work'], kokuji: true });
   assert.deepEqual(readMeanings(doc(['work', '(kokuji)'], false)), { m: ['work'], kokuji: false });
 });
+
+test('the tag is matched without regard to case or surrounding whitespace', () => {
+  assert.deepEqual(readMeanings(doc(['work', ' (Kokuji) '])), { m: ['work'], kokuji: true });
+});

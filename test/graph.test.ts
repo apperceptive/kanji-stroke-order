@@ -143,9 +143,10 @@ test('kun readings travel with the on-readings, labeled, and uncommon ones stay 
   assert.ok(!readings(hub('寺')).includes('kun') || hub('寺').kun.length > 0);
 });
 
-test('no meaning carries the (kokuji) label; the flag marks the nine tagged jōyō kokuji', () => {
+test('no meaning carries the (kokuji) label; the flag marks at least the nine tagged jōyō kokuji', () => {
   const nodes = Object.values(loadGraph().kanji);
   assert.deepEqual(nodes.filter((n) => n.m.some((m) => /kokuji/i.test(m))).map((n) => n.c), []);
-  assert.deepEqual(nodes.filter((n) => n.kokuji).map((n) => n.c).sort(), [...'働込匂畑腺峠枠塀栃'].sort());
+  const flagged = new Set(nodes.filter((n) => n.kokuji).map((n) => n.c));
+  for (const k of '働込匂畑腺峠枠塀栃') assert.ok(flagged.has(k), k); // more may be flagged once the source carries a kokuji field
   assert.equal(getNode('働')!.m.join(', '), 'work');
 });

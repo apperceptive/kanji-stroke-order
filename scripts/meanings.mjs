@@ -6,6 +6,7 @@ export const MEANING_LIMIT = 3;
 
 /** KANJIDIC marks a kokuji (a kanji made in Japan) with this literal entry among the English meanings. */
 export const KOKUJI_TAG = '(kokuji)';
+const isKokujiTag = (entry) => entry.trim().toLowerCase() === KOKUJI_TAG;
 
 /**
  * The meanings and kokuji flag a graph node keeps for one `kanji` document.
@@ -17,7 +18,7 @@ export const KOKUJI_TAG = '(kokuji)';
 export function readMeanings(doc, limit = MEANING_LIMIT) {
   const english = doc?.meaning?.english ?? [];
   return {
-    m: english.filter((x) => x !== KOKUJI_TAG).slice(0, limit),
-    kokuji: typeof doc?.kokuji === 'boolean' ? doc.kokuji : english.includes(KOKUJI_TAG),
+    m: english.filter((x) => !isKokujiTag(x)).slice(0, limit),
+    kokuji: typeof doc?.kokuji === 'boolean' ? doc.kokuji : english.some(isKokujiTag),
   };
 }
