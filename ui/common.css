@@ -1,0 +1,63 @@
+/* Shared by both Nihongoism apps. One look in every host theme: ink on paper. Brand colors follow the
+   Nihongoism palette (brick #98342c, body text #441111). No web fonts: an MCP App's sandbox blocks external
+   origins by default, so the kanji face is whatever mincho the device has. */
+:root{
+  --desk:#e3cbbf; --paper:#fffaf3; --text:#441111; --muted:#7f6342; --line:#e3cbbf;
+  --brick:#98342c; --brick-dark:#7e2b24;
+  --sound:#98342c; --part:#2f5d8a; --built:#4a7c59; --neutral:#7f6342;
+  --kanji:"Shippori Mincho","Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP","Noto Serif JP","MS PMincho",serif;
+  --heading:"Alegreya",Georgia,"Times New Roman",serif;
+  --body:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:transparent;overflow-x:hidden}
+/* The host's safe area: in fullscreen Claude puts its message box over the bottom of the app. */
+body{padding:var(--sa-top,0px) var(--sa-right,0px) var(--sa-bottom,0px) var(--sa-left,0px)}
+body{color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.card{background:var(--paper);border-radius:14px;box-shadow:0 1px 2px rgba(68,17,17,.14),0 6px 22px rgba(68,17,17,.12);max-width:640px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-left,0px)) 14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.title{font-family:var(--heading);font-weight:700;font-size:18px;margin:0}
+.sub{color:var(--muted);font-size:13px}
+.jp{font-family:var(--kanji)}
+button{font:inherit;font-family:var(--heading);font-weight:700;font-size:15px;line-height:1;padding:9px 14px;min-height:40px;border:1.5px solid var(--brick);background:transparent;color:var(--brick);border-radius:9px;cursor:pointer;touch-action:manipulation}
+button:hover:not(:disabled){background:var(--brick);color:#fff}
+button:disabled{opacity:.4;cursor:default}
+button.solid{background:var(--brick);color:#fff}
+button.solid:hover:not(:disabled){background:var(--brick-dark)}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--brick-dark);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label.check{font-size:13.5px;display:flex;gap:6px;align-items:center;cursor:pointer;color:var(--text)}
+input[type=checkbox]{accent-color:var(--brick);width:16px;height:16px}
+input[type=range]{accent-color:var(--brick);width:100%}
+select{font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid var(--brick);background:var(--paper);color:var(--text);border-radius:8px}
+footer.foot{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px}
+.brand svg{height:18px;width:auto;display:block}
+.info{margin-left:auto;min-width:44px;min-height:44px;margin-block:-14px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:20px;font-weight:400}
+.info:hover:not(:disabled){background:transparent;color:var(--brick)}
+/* The sources dialog: a small panel over the app, closed by its button, a click outside, or Escape. */
+.scrim{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:10px;background:rgba(68,17,17,.38)}
+.scrim[hidden]{display:none}
+.help-box{position:relative;background:var(--paper);border-radius:12px;padding:16px 18px 14px;max-width:460px;max-height:100%;overflow:auto;font-size:13px;box-shadow:0 10px 30px rgba(68,17,17,.35)}
+.help-box h2{font-family:var(--heading);font-size:16px;margin:0 36px 8px 0}
+.help-box ul{margin:0;padding-left:18px;display:grid;gap:7px}
+.help-box a{color:var(--brick)}
+.help-x{position:absolute;top:4px;right:4px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);font-family:var(--body);font-size:24px;font-weight:400;line-height:1}
+.help-x:hover:not(:disabled){background:transparent;color:var(--brick)}
+/* Expand and close, top right of every app (ui/winctl.html). Close shows only in the full view. */
+.winctl{display:flex;align-items:center;flex:none;margin:-6px -8px -6px 0}
+.wc{min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center}
+.wc:hover:not(:disabled){background:transparent;color:var(--brick)}
+.wc[hidden]{display:none}
+body:not([data-display=full]) .wc[data-act=close],body:not([data-display=full]) .i-restore,body[data-display=full] .i-expand{display:none}
+header.top .right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* Small apps (the relations view, the drill): suggestion buttons, notes and the question grid. */
+.says{display:flex;flex-wrap:wrap;gap:8px}
+.say{font-family:var(--body);font-weight:500;font-size:14px;padding:8px 12px;min-height:40px;border-radius:999px;border:1.5px solid var(--brick);background:#fff;color:var(--brick-dark)}
+.say:hover:not(:disabled){background:#f6e3de;color:var(--brick-dark)}
+.note{font-size:13px;color:var(--muted);min-height:20px;margin:0}
+.err{color:var(--brick-dark);font-size:14px;margin:0}
+[hidden]{display:none!important}
