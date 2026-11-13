@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { readMeanings } from './meanings.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
@@ -155,7 +156,7 @@ for (const k of joyo) {
     g: m?.grade ?? null,
     f: m?.freq ?? null,
     sc: m?.stroke_count ?? countStrokes(tree),
-    m: m?.meaning?.english?.slice(0, 3) ?? [],
+    m: readMeanings(m),
     on: (on.get(k) ?? []).map((x) => x.r),
     kun: kun.get(k) ?? [],
     parts: parts.map(({ e, shown, pos, rad, ph, n }) => {
